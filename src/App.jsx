@@ -324,7 +324,101 @@ function SongLibraryPage({ onAddSong }) {
   );
 }
 
-function ChordBuilderPage() {
+function parseChordEditorContent(content) {
+  const attached = {};
+  const parsedLines = content.split(/\r?\n/).map((line, lineIndex) => {
+    if (!line.trim()) return { type: 'blank', section: '', words: [] };
+    if (/^\s*\{[^{}]+\}\s*$/.test(line)) {
+      return { type: 'section', section: line.trim(), words: [] };
+    }
+
+    let plainText = '';
+    let cursor = 0;
+    const chordMarkers = [];
+    const chordPattern = /\[([^\]]+)\]/g;
+    let match;
+    while ((match = chordPattern.exec(line)) !== null) {
+      plainText += line.slice(cursor, match.index);
+      chordMarkers.push({ chord: match[1], position: plainText.length });
+      cursor = chordPattern.lastIndex;
+    }
+    plainText += line.slice(cursor);
+
+    const wordMatches = [...plainText.matchAll(/\S+/g)];
+    if (wordMatches.length === 0 && chordMarkers.length > 0) {
+      return { type: 'chords', section: '', words: [], chords: chordMarkers.map(({ chord }) => chord) };
+    }
+
+    const chordGroups = chordMarkers.reduce((groups, marker) => {
+      const previousGroup = groups[groups.length - 1];
+      if (previousGroup?.position === marker.position) previousGroup.chords.push(marker.chord);
+      else groups.push({ position: marker.position, chords: [marker.chord] });
+      return groups;
+    }, []);
+    const chordBoxes = [];
+    chordGroups.forEach(({ position, chords }) => {
+      const containingWordIndex = wordMatches.findIndex((word) => (
+        position >= word.index && position < word.index + word[0].length
+      ));
+      const nextWordIndex = wordMatches.findIndex((word) => word.index >= position);
+      const wordIndex = containingWordIndex >= 0 ? containingWordIndex : nextWordIndex;
+      const isBox = containingWordIndex < 0 && (
+        wordIndex < 0 || plainText.slice(position, wordMatches[wordIndex].index).length > 0
+      );
+      if (isBox) {
+        chords.forEach((chord) => {
+          chordBoxes.push({ position: wordIndex < 0 ? wordMatches.length : wordIndex, chords: [chord] });
+        });
+      } else if (wordIndex >= 0) {
+        attached[`${lineIndex}:${wordIndex}`] = chords[chords.length - 1];
+      }
+    });
+
+    return { type: 'lyrics', section: '', words: wordMatches.map((word) => word[0]), chordBoxes };
+  });
+
+  parsedLines.forEach((line, lineIndex) => {
+    if (line.type !== 'chords') return;
+    let targetLineIndex = -1;
+    for (let index = lineIndex - 1; index >= 0; index -= 1) {
+      if (parsedLines[index].type === 'section') break;
+      if (parsedLines[index].type === 'lyrics') {
+        targetLineIndex = index;
+        break;
+      }
+    }
+    if (targetLineIndex < 0) {
+      for (let index = lineIndex + 1; index < parsedLines.length; index += 1) {
+        if (parsedLines[index].type === 'section') break;
+        if (parsedLines[index].type === 'lyrics') {
+          targetLineIndex = index;
+          break;
+        }
+      }
+    }
+    if (targetLineIndex < 0) return;
+    const targetLine = parsedLines[targetLineIndex];
+    const position = targetLineIndex < lineIndex ? targetLine.words.length : 0;
+    targetLine.chordBoxes.push(...line.chords.map((chord) => ({ position, chords: [chord] })));
+    line.type = 'migrated-chords';
+  });
+
+  const lineIndexMap = new Map();
+  const lines = parsedLines.filter((line, originalIndex) => {
+    if (line.type === 'migrated-chords') return false;
+    lineIndexMap.set(originalIndex, lineIndexMap.size);
+    return true;
+  });
+  const remappedAttached = Object.entries(attached).reduce((next, [tokenId, chord]) => {
+    const [originalLineIndex, wordIndex] = tokenId.split(':').map(Number);
+    const lineIndex = lineIndexMap.get(originalLineIndex);
+    if (lineIndex !== undefined) next[`${lineIndex}:${wordIndex}`] = chord;
+    return next;
+  }, {});
+  return { lines, attached: remappedAttached };
+}
+
+function ChordBuilderPage({ editSongId = '' }) {
   const [activeChord, setActiveChord] = useState('');
   const [customChord, setCustomChord] = useState('');
   const [customChords, setCustomChords] = useState([]);
@@ -338,51 +432,55 @@ function ChordBuilderPage() {
   const [draft, setDraft] = useState(null);
   const [scales, setScales] = useState([]);
   const [selectedScale, setSelectedScale] = useState('');
+  const [editorLines, setEditorLines] = useState([]);
+  const [activeLineIndex, setActiveLineIndex] = useState(-1);
+  const [draggingChordBox, setDraggingChordBox] = useState(false);
+  const [activeDropTarget, setActiveDropTarget] = useState(null);
 
-  useEffect(() => {
-    adminRequest('/api/admin/songs')
-      .then(setSongs)
-      .catch((error) => window.alert(error.message));
-    adminRequest('/api/admin/scales')
-      .then(setScales)
-      .catch((error) => window.alert(error.message));
-  }, []);
+  const scaleOptionValue = (entry) => `${entry.scale}::${entry.type}`;
 
-  function selectSong(song) {
+  function selectSong(song, availableScales = scales) {
     setSelectedSong(song);
     setDraft({ ...song });
-    setSelectedScale(song.defaultKey || '');
+    const root = /^([A-G](?:#|b)?)/i.exec(song.defaultKey || '')?.[1];
+    const minor = /m(?!aj)|minor/i.test((song.defaultKey || '').slice(root?.length || 0));
+    const matchingScale = availableScales.find((entry) => (
+      entry.scale === root && entry.type.toLowerCase() === (minor ? 'minor' : 'major')
+    ));
+    setSelectedScale(matchingScale ? scaleOptionValue(matchingScale) : '');
     setOffset(0);
-    const nextAttached = {};
-    const contentLines = (song.content || '').split(/\n/).filter((line) => line.trim());
-    contentLines.forEach((line, lineIndex) => {
-      let cursor = 0;
-      const chordPattern = /\[([^\]]+)\]/g;
-      let match;
-      let plainPosition = 0;
-      while ((match = chordPattern.exec(line)) !== null) {
-        const before = line.slice(cursor, match.index);
-        const beforeWords = before.trim().split(/\s+/).filter(Boolean);
-        plainPosition += beforeWords.length;
-        const afterIndex = match.index + match[0].length;
-        const rest = line.slice(afterIndex);
-        const wordMatch = rest.match(/^(\S+)/);
-        if (wordMatch) {
-          nextAttached[`${lineIndex}:${plainPosition}`] = match[1];
-          plainPosition += 1;
-          cursor = afterIndex + wordMatch[1].length;
-        } else {
-          cursor = afterIndex;
-        }
-      }
-    });
-    setAttached(nextAttached);
+    const parsedContent = parseChordEditorContent(song.content || '');
+    setEditorLines(parsedContent.lines);
+    setAttached(parsedContent.attached);
+    setActiveLineIndex(-1);
   }
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([adminRequest('/api/admin/songs'), adminRequest('/api/admin/scales')])
+      .then(([loadedSongs, loadedScales]) => {
+        if (cancelled) return;
+        setSongs(loadedSongs);
+        setScales(loadedScales);
+        if (editSongId) {
+          const song = loadedSongs.find((item) => item.id === editSongId);
+          if (!song) {
+            window.alert('The selected song could not be found.');
+            return;
+          }
+          selectSong(song, loadedScales);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) window.alert(error.message);
+      });
+    return () => { cancelled = true; };
+  }, [editSongId]);
 
   const filteredSongs = songs.filter((song) =>
     `${song.title || ''} ${song.artist || ''}`.toLowerCase().includes(songQuery.toLowerCase())
   );
-  const scaleEntry = scales.find((entry) => entry.scale === selectedScale);
+  const scaleEntry = scales.find((entry) => scaleOptionValue(entry) === selectedScale);
   const scalePalette = scaleEntry
     ? [...new Map([
         ...scaleEntry.chords.map((chord) => [chord.triad, chord.triad]),
@@ -390,12 +488,155 @@ function ChordBuilderPage() {
       ]).values()]
     : [];
   const palette = [...scalePalette, ...customChords];
-  const lines = draft?.content
-    ? draft.content.split(/\n/).filter((line) => line.trim()).map((line) => ({
-        section: '',
-        words: line.replace(/\[([^\]]+)\]/g, '').trim().split(/\s+/).filter(Boolean),
-      }))
-    : [];
+  const lines = editorLines;
+
+  function insertChordBoxAt(lineIndex, wordIndex) {
+    setEditorLines((current) => current.map((line, index) => {
+      if (index !== lineIndex || line.type !== 'lyrics') return line;
+      const chordBoxes = [...(line.chordBoxes || []), { position: wordIndex, chords: [''] }]
+        .sort((left, right) => left.position - right.position);
+      return { ...line, chordBoxes };
+    }));
+    setActiveLineIndex(lineIndex);
+  }
+
+  function addChordBoxLine() {
+    const activeLine = editorLines[activeLineIndex];
+    const lineIndex = activeLine?.type === 'lyrics'
+      ? activeLineIndex
+      : editorLines.reduce((lastIndex, line, index) => line.type === 'lyrics' ? index : lastIndex, -1);
+    if (lineIndex >= 0) {
+      insertChordBoxAt(lineIndex, editorLines[lineIndex].words.length);
+    } else {
+      setEditorLines((current) => [...current, { type: 'chords', section: '', words: [], chords: [''] }]);
+    }
+  }
+
+  function getChordBoxDropTarget(event) {
+    const lyricLines = Array.from(event.currentTarget.querySelectorAll('[data-editor-type="lyrics"]'));
+    if (lyricLines.length === 0) return null;
+    const targetLine = lyricLines.reduce((nearest, line) => {
+      const bounds = line.getBoundingClientRect();
+      const distance = event.clientY < bounds.top
+        ? bounds.top - event.clientY
+        : event.clientY > bounds.bottom ? event.clientY - bounds.bottom : 0;
+      return !nearest || distance < nearest.distance ? { line, distance } : nearest;
+    }, null)?.line;
+    if (!targetLine) return null;
+
+    const words = Array.from(targetLine.querySelectorAll('[data-editor-word-index]'))
+      .map((word) => {
+        const bounds = word.getBoundingClientRect();
+        return {
+          index: Number(word.dataset.editorWordIndex),
+          bounds,
+          verticalDistance: event.clientY < bounds.top
+            ? bounds.top - event.clientY
+            : event.clientY > bounds.bottom ? event.clientY - bounds.bottom : 0,
+        };
+      });
+    if (words.length === 0) return { lineIndex: Number(targetLine.dataset.editorLine), wordIndex: 0 };
+
+    const nearestWord = words.reduce((nearest, word) => (
+      word.verticalDistance < nearest.verticalDistance ? word : nearest
+    ));
+    const rowWords = words
+      .filter((word) => Math.abs(word.bounds.bottom - nearestWord.bounds.bottom) <= 2)
+      .sort((left, right) => left.bounds.left - right.bounds.left);
+    const centers = rowWords.map((word) => (word.bounds.left + word.bounds.right) / 2);
+    let wordIndex = rowWords[0].index;
+    if (event.clientX >= centers[0]) {
+      wordIndex = rowWords[rowWords.length - 1].index + 1;
+      for (let index = 0; index < rowWords.length - 1; index += 1) {
+        if (event.clientX < (centers[index] + centers[index + 1]) / 2) {
+          wordIndex = rowWords[index].index + 1;
+          break;
+        }
+      }
+    }
+    return { lineIndex: Number(targetLine.dataset.editorLine), wordIndex };
+  }
+
+  function appendChordOnlyLine() {
+    setEditorLines((current) => [...current, { type: 'chords', section: '', words: [], chords: [''] }]);
+  }
+
+  function handleChordBoxDragOver(event) {
+    if (!draggingChordBox) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    const target = getChordBoxDropTarget(event);
+    setActiveDropTarget((current) => (
+      current?.lineIndex === target?.lineIndex && current?.wordIndex === target?.wordIndex
+        ? current
+        : target
+    ));
+  }
+
+  function handleChordBoxDrop(event) {
+    if (!draggingChordBox || event.dataTransfer.getData('text/plain') !== 'setlist-chord-box') return;
+    event.preventDefault();
+    const target = getChordBoxDropTarget(event);
+    if (target) insertChordBoxAt(target.lineIndex, target.wordIndex);
+    else appendChordOnlyLine();
+    setDraggingChordBox(false);
+    setActiveDropTarget(null);
+  }
+
+  function updateChordBox(lineIndex, boxIndex) {
+    if (!activeChord) return;
+    setEditorLines((current) => current.map((line, index) => {
+      if (index !== lineIndex) return line;
+      const chordBoxes = line.chordBoxes.map((box, currentBoxIndex) => {
+        if (currentBoxIndex !== boxIndex) return box;
+        return { ...box, chords: [box.chords[0] === activeChord ? '' : activeChord] };
+      });
+      return { ...line, chordBoxes };
+    }));
+  }
+
+  function updateLegacyChordBox(lineIndex, boxIndex) {
+    if (!activeChord) return;
+    setEditorLines((current) => current.map((line, index) => {
+      if (index !== lineIndex) return line;
+      const chords = [...line.chords];
+      chords[boxIndex] = chords[boxIndex] === activeChord ? '' : activeChord;
+      return { ...line, chords };
+    }));
+  }
+
+  function removeLegacyChordBox(lineIndex, boxIndex) {
+    if (editorLines[lineIndex]?.chords.length === 1) {
+      removeChordBoxLine(lineIndex);
+      return;
+    }
+    setEditorLines((current) => current.map((line, index) => (
+      index === lineIndex
+        ? { ...line, chords: line.chords.filter((_, currentIndex) => currentIndex !== boxIndex) }
+        : line
+    )));
+  }
+
+  function removeInlineChordBox(lineIndex, boxIndex) {
+    setEditorLines((current) => current.map((line, index) => (
+      index === lineIndex
+        ? { ...line, chordBoxes: line.chordBoxes.filter((_, currentIndex) => currentIndex !== boxIndex) }
+        : line
+    )));
+  }
+
+  function removeChordBoxLine(lineIndex) {
+    setEditorLines((current) => current.filter((_, index) => index !== lineIndex));
+    setAttached((current) => Object.entries(current).reduce((next, [tokenId, chord]) => {
+      const [currentLine, wordIndex] = tokenId.split(':').map(Number);
+      if (currentLine < lineIndex) next[tokenId] = chord;
+      else if (currentLine > lineIndex) next[`${currentLine - 1}:${wordIndex}`] = chord;
+      return next;
+    }, {}));
+    setActiveLineIndex((current) => (
+      current === lineIndex ? -1 : current > lineIndex ? current - 1 : current
+    ));
+  }
 
   function addChord(event) {
     event.preventDefault();
@@ -406,30 +647,72 @@ function ChordBuilderPage() {
     setCustomChord('');
   }
 
+  function transposeEditor(semitones) {
+    setOffset((current) => current + semitones);
+    setAttached((current) => Object.fromEntries(
+      Object.entries(current).map(([tokenId, chord]) => [tokenId, transposeChord(chord, semitones)])
+    ));
+    setCustomChords((current) => current.map((chord) => transposeChord(chord, semitones)));
+    setActiveChord((current) => current ? transposeChord(current, semitones) : '');
+    const currentKey = scaleEntry
+      ? `${scaleEntry.scale}${scaleEntry.type.toLowerCase() === 'minor' ? 'm' : ''}`
+      : draft?.defaultKey || 'C';
+    const nextKey = transposeChord(currentKey, semitones);
+    setDraft((current) => current ? { ...current, defaultKey: nextKey } : current);
+    if (scaleEntry) {
+      const nextRoot = /^([A-G](?:#|b)?)/.exec(nextKey)?.[1];
+      const nextScale = scales.find((entry) => entry.scale === nextRoot && entry.type === scaleEntry.type);
+      setSelectedScale(nextScale ? scaleOptionValue(nextScale) : '');
+    }
+  }
+
   async function saveSong() {
     if (!selectedSong || !draft) return;
     try {
-      const chordContent = lines.map((line, lineIndex) =>
-        `${line.section ? `{${line.section}}\\n` : ''}` +
-        line.words.map((word, wordIndex) => {
+      const chordContent = lines.map((line, lineIndex) => {
+        if (line.type === 'blank') return '';
+        if (line.type === 'section') return line.section;
+        if (line.type === 'chords') return line.chords.filter(Boolean).map((chord) => `[${chord}]`).join('');
+        return Array.from({ length: line.words.length + 1 }, (_, wordIndex) => {
+          const chordBoxContent = (line.chordBoxes || [])
+            .filter((box) => box.position === wordIndex)
+            .flatMap((box) => box.chords)
+            .filter(Boolean)
+            .map((chord) => `[${chord}]`)
+            .join('');
+          const hasWord = wordIndex < line.words.length;
           const tokenId = `${lineIndex}:${wordIndex}`;
-          return `${attached[tokenId] ? `[${attached[tokenId]}]` : ''}${word}`;
-        }).join(' ')
-      ).join('\n\n');
+          return `${wordIndex > 0 && (chordBoxContent || hasWord) ? ' ' : ''}` +
+            `${chordBoxContent}${chordBoxContent && hasWord ? ' ' : ''}` +
+            `${hasWord ? `${attached[tokenId] ? `[${attached[tokenId]}]` : ''}${line.words[wordIndex]}` : ''}`;
+        }).join('');
+      }).join('\n');
+      const currentRoot = /^([A-G](?:#|b)?)/.exec(draft.defaultKey || '')?.[1];
+      const currentMinor = /m(?!aj)|minor/i.test((draft.defaultKey || '').slice(currentRoot?.length || 0));
+      const sameScale = scaleEntry
+        && scaleEntry.scale === currentRoot
+        && (scaleEntry.type.toLowerCase() === 'minor') === currentMinor;
+      const selectedKey = scaleEntry && !sameScale
+        ? `${scaleEntry.scale}${scaleEntry.type.toLowerCase() === 'minor' ? 'm' : ''}`
+        : draft.defaultKey;
       await adminRequest(`/api/admin/songs/${selectedSong.id}`, {
         method: 'PUT',
         body: JSON.stringify({
           title: draft.title,
           artist: draft.artist,
-          defaultKey: selectedScale || draft.defaultKey,
+          defaultKey: selectedKey,
           bpm: draft.bpm,
           timeSignature: draft.timeSignature,
-          content: chordContent || draft.content || '',
+          content: chordContent,
         }),
       });
-      sessionStorage.removeItem('band_song_draft');
       setSaved(true);
-      window.setTimeout(() => window.location.assign('/admin/songs'), 500);
+      if (editSongId) {
+        window.setTimeout(() => setSaved(false), 1800);
+      } else {
+        sessionStorage.removeItem('band_song_draft');
+        window.setTimeout(() => window.location.assign('/admin/songs'), 500);
+      }
     } catch (error) {
       window.alert(error.message);
     }
@@ -469,15 +752,18 @@ function ChordBuilderPage() {
     ) : (
     <div className="chord-page">
       <section className="chord-toolbar">
-        <div className="song-context"><span className="live-dot" /><strong>{draft.title || 'Untitled song'}</strong>{draft.defaultKey && <span>KEY <b>{draft.defaultKey}</b></span>}{draft.bpm && <span>TEMPO <b>{draft.bpm} BPM</b></span>}{draft.timeSignature && <span>METER <b>{draft.timeSignature}</b></span>}</div>
-        <div className="mode-pill">⌖ &nbsp; Point-and-Click Active: Click word token to attach <b>{activeChord}</b></div>
+        <div className="song-context"><span className="live-dot" /><strong>{draft.title || 'Untitled song'}</strong>{scaleEntry ? <span>SCALE <b>{scaleEntry.scale} — {scaleEntry.type}</b></span> : draft.defaultKey ? <span>KEY <b>{draft.defaultKey}</b></span> : null}{draft.bpm && <span>TEMPO <b>{draft.bpm} BPM</b></span>}{draft.timeSignature && <span>METER <b>{draft.timeSignature}</b></span>}</div>
+        <div className="mode-pill">⌖ &nbsp; Click a lyric word or chord box to attach <b>{activeChord || 'a selected chord'}</b></div>
         <div className="chord-controls">
           <label className="scale-select-label">
             SCALE
-            <select value={selectedScale} onChange={(event) => setSelectedScale(event.target.value)}>
+            <select value={selectedScale} onChange={(event) => {
+              setSelectedScale(event.target.value);
+              setActiveChord('');
+            }}>
               <option value="">Select a scale</option>
               {scales.map((entry) => (
-                <option key={`${entry.scale}-${entry.type}`} value={entry.scale}>
+                <option key={scaleOptionValue(entry)} value={scaleOptionValue(entry)}>
                   {entry.scale} — {entry.type}
                 </option>
               ))}
@@ -491,16 +777,125 @@ function ChordBuilderPage() {
       </section>
 
       <div className="chord-split">
-        <section className="chord-panel lyric-canvas"><div className="chord-panel-heading"><h2>✎ &nbsp; Interactive Lyric Canvas <small>EDITOR MODE</small></h2><button className="clear-chords" onClick={() => setAttached({})} type="button">Clear All Chords</button></div>{lines.length === 0 ? <p className="helper-text">Add song lyrics before placing chords.</p> : <div className="token-canvas">{lines.map((line, lineIndex) => <div className="token-line" key={lineIndex}>{line.words.map((word, wordIndex) => {
-          const tokenId = `${lineIndex}:${wordIndex}`;
-          return <button className={`word-token ${attached[tokenId] ? 'has-chord' : ''}`} key={tokenId} onClick={() => activeChord && setAttached((current) => { const next = { ...current }; if (next[tokenId]) delete next[tokenId]; else next[tokenId] = activeChord; return next; })} type="button"><span className="attached-chord">{attached[tokenId] || ''}</span><span>{word}</span></button>;
-        })}</div>)}</div>}</section>
-        <section className="chord-panel stage-panel"><div className="chord-panel-heading"><h2>▣ &nbsp; Live Preview</h2></div><div className="stage-screen"><div className="stage-screen__header"><strong>{draft.title || 'Untitled song'}</strong>{draft.defaultKey && <span>Key: {draft.defaultKey}</span>}{draft.bpm && <i>{draft.bpm} BPM</i>}</div>{lines.length === 0 ? <p>No lyrics to preview.</p> : <div className="stage-lyrics chord-preview">{lines.map((line, lineIndex) => <div className="chord-preview-line" key={lineIndex}><div className="chord-preview-tokens">{line.words.map((word, wordIndex) => {
-          const tokenId = `${lineIndex}:${wordIndex}`;
-          return <span className="chord-preview-token" key={tokenId}><span className="chord-preview-chord">{attached[tokenId] || '\u00a0'}</span><span className="chord-preview-word">{word}</span></span>;
-        })}</div></div>)}</div>}</div></section>
+        <section className="chord-panel lyric-canvas">
+          <div className="chord-panel-heading">
+            <h2>✎ &nbsp; Interactive Lyric Canvas <small>EDITOR MODE</small></h2>
+            <div className="chord-canvas-actions">
+              <button
+                className="add-chord-box"
+                draggable="true"
+                onClick={addChordBoxLine}
+                onDragEnd={() => {
+                  setDraggingChordBox(false);
+                  setActiveDropTarget(null);
+                }}
+                onDragStart={(event) => {
+                  event.dataTransfer.setData('text/plain', 'setlist-chord-box');
+                  event.dataTransfer.effectAllowed = 'copy';
+                  setDraggingChordBox(true);
+                }}
+                title="Click to add at the end of the selected lyric line, or drag to choose a position"
+                type="button"
+              >
+                Add Chord Box
+              </button>
+              <button className="clear-chords" onClick={() => {
+                setAttached({});
+                setEditorLines((current) => current.map((line) => (
+                  line.type === 'chords'
+                    ? { ...line, chords: line.chords.map(() => '') }
+                    : line.type === 'lyrics'
+                      ? { ...line, chordBoxes: (line.chordBoxes || []).map((box) => ({ ...box, chords: box.chords.map(() => '') })) }
+                      : line
+                )));
+              }} type="button">Clear All Chords</button>
+            </div>
+          </div>
+          <div
+            className={`token-canvas ${draggingChordBox ? 'token-canvas--dragging' : ''}`}
+            onDragOver={handleChordBoxDragOver}
+            onDrop={handleChordBoxDrop}
+          >
+              {lines.length === 0 && <p className="helper-text">Add lyrics or drag a chord box here.</p>}
+              {lines.map((line, lineIndex) => {
+                if (line.type === 'section') return <div className="token-section" data-editor-line={lineIndex} key={lineIndex}>{line.section}</div>;
+                if (line.type === 'blank') return <div aria-hidden="true" className="token-line token-line--blank" data-editor-line={lineIndex} key={lineIndex} />;
+                if (line.type === 'chords') return (
+                  <div className="chord-box-line" data-editor-line={lineIndex} key={lineIndex}>
+                    <div className="chord-boxes">
+                      {line.chords.map((chord, boxIndex) => (
+                        <span className="inline-chord-box" key={boxIndex}>
+                          <button
+                            aria-label={`Chord box ${boxIndex + 1}${chord ? `: ${chord}` : ''}`}
+                            className={chord ? 'chord-only-box chord-only-box--filled' : 'chord-only-box'}
+                            onClick={() => updateLegacyChordBox(lineIndex, boxIndex)}
+                            title={activeChord ? `Add ${activeChord}` : 'Select a chord first'}
+                            type="button"
+                          >
+                            {chord || 'Chord'}
+                          </button>
+                          <button aria-label={`Remove chord box ${boxIndex + 1}`} className="chord-box-remove" onClick={() => removeLegacyChordBox(lineIndex, boxIndex)} type="button">×</button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+                const inlineItems = [];
+                for (let wordIndex = 0; wordIndex <= line.words.length; wordIndex += 1) {
+                  if (activeDropTarget?.lineIndex === lineIndex && activeDropTarget.wordIndex === wordIndex) {
+                    inlineItems.push(<span aria-hidden="true" className="inline-chord-drop-indicator" key={`drop-${wordIndex}`} />);
+                  }
+                  (line.chordBoxes || []).forEach((box, boxIndex) => {
+                    if (box.position !== wordIndex) return;
+                    inlineItems.push(
+                      <span className="inline-chord-box" key={`box-${boxIndex}`}>
+                        <button
+                          aria-label={`Inline chord box ${boxIndex + 1}${box.chords[0] ? `: ${box.chords[0]}` : ''}`}
+                          className={box.chords[0] ? 'chord-only-box chord-only-box--filled' : 'chord-only-box'}
+                          onClick={() => updateChordBox(lineIndex, boxIndex)}
+                          title={activeChord ? `Add ${activeChord}` : 'Select a chord first'}
+                          type="button"
+                        >
+                          {box.chords[0] || 'Chord'}
+                        </button>
+                        <button aria-label="Remove inline chord box" className="chord-box-remove" onClick={() => removeInlineChordBox(lineIndex, boxIndex)} type="button">×</button>
+                      </span>
+                    );
+                  });
+                  if (wordIndex < line.words.length) {
+                    const word = line.words[wordIndex];
+                    const tokenId = `${lineIndex}:${wordIndex}`;
+                    inlineItems.push(
+                      <button
+                        className={`word-token ${attached[tokenId] ? 'has-chord' : ''}`}
+                        data-editor-word-index={wordIndex}
+                        key={tokenId}
+                        onClick={() => {
+                          setActiveLineIndex(lineIndex);
+                          if (activeChord) setAttached((current) => {
+                            const next = { ...current };
+                            if (next[tokenId] === activeChord) delete next[tokenId];
+                            else next[tokenId] = activeChord;
+                            return next;
+                          });
+                        }}
+                        type="button"
+                      >
+                        <span className="attached-chord">{attached[tokenId] || ''}</span><span>{word}</span>
+                      </button>
+                    );
+                  }
+                }
+                return (
+                  <div className="token-line" data-editor-line={lineIndex} data-editor-type="lyrics" key={lineIndex}>
+                    {inlineItems}
+                  </div>
+                );
+              })}
+          </div>
+        </section>
       </div>
-      <footer className="chord-actions"><div>☁ &nbsp; Autosaved 12s ago <span>Transpose: <button onClick={() => setOffset((value) => value - 1)} type="button">-1</button><b>{offset > 0 ? '+' : ''}{offset} (G)</b><button onClick={() => setOffset((value) => value + 1)} type="button">+1</button></span></div><div><button type="button">▣ &nbsp; Preview on Stage iPads</button><button className={saved ? 'saved' : ''} onClick={saveSong} type="button">{saved ? '✓ Synced to Library' : '✓ Save Song & Chords to Library'}</button></div></footer>
+      <footer className="chord-actions"><div>☁ &nbsp; Autosaved <span>Transpose: <button onClick={() => transposeEditor(-1)} type="button">-1</button><b>{offset > 0 ? '+' : ''}{offset} ({scaleEntry?.scale || draft.defaultKey || '—'})</b><button onClick={() => transposeEditor(1)} type="button">+1</button></span></div><div><button type="button">▣ &nbsp; Preview on Stage iPads</button><button className={saved ? 'saved' : ''} onClick={saveSong} type="button">{saved ? '✓ Saved' : '✓ Save Song & Chords to Library'}</button></div></footer>
     </div>
     )
   );
@@ -1274,7 +1669,7 @@ function Workspace({ onViewStage }) {
       <Sidebar activePage={activePage} onNavigate={navigatePage} onViewStage={onViewStage} />
       <main className="main-content">
         <header className="topbar"><div className="breadcrumb"><span>Workspace</span><b>/</b><strong>{page.label}</strong></div><button aria-label="Band Admin account" className="profile-button" type="button"><span aria-hidden="true" className="avatar avatar--small">B</span><span className="hide-mobile">Band Admin</span><span aria-hidden="true">⌄</span></button></header>
-        {activePage === 'library' ? <SongLibraryPage onAddSong={() => navigatePage('add-song')} /> : activePage === 'add-song' ? <AddSongPage /> : activePage === 'chord-builder' ? <ChordBuilderPage /> : activePage === 'edit-song' ? <EditSongPage /> : activePage === 'setlist-builder' ? <SetlistBuilderPage /> : activePage === 'view-setlist' ? <ViewSetlistPage /> : <div className="content"><div className="page-heading"><h1>{page.label}</h1></div><section className="empty-state"><span className="empty-state__icon">{page.icon}</span><h2>{page.label}</h2><p>No content configured.</p></section></div>}
+        {activePage === 'library' ? <SongLibraryPage onAddSong={() => navigatePage('add-song')} /> : activePage === 'add-song' ? <AddSongPage /> : activePage === 'chord-builder' ? <ChordBuilderPage /> : activePage === 'edit-song' ? location.pathname.endsWith('/chords') ? <ChordBuilderPage editSongId={location.pathname.split('/')[3]} /> : <EditSongPage /> : activePage === 'setlist-builder' ? <SetlistBuilderPage /> : activePage === 'view-setlist' ? <ViewSetlistPage /> : <div className="content"><div className="page-heading"><h1>{page.label}</h1></div><section className="empty-state"><span className="empty-state__icon">{page.icon}</span><h2>{page.label}</h2><p>No content configured.</p></section></div>}
       </main>
     </div>
   );
