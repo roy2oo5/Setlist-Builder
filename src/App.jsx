@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { adminRequest, setAdminToken } from './api/adminClient';
 import ProtectedRoute from './components/ProtectedRoute';
-import { getDiatonicChords, transposeChord, transposeContent } from './utils/chordPro';
+import { getDiatonicChords, parseChordProLine, transposeChord, transposeContent } from './utils/chordPro';
 
 const pages = [
   { id: 'setlist-builder', label: 'Setlist Builder', icon: '☷' },
@@ -10,7 +10,6 @@ const pages = [
   { id: 'library', label: 'Song Library', icon: '♫' },
   { id: 'add-song', label: 'Add Song', icon: '+' },
   { id: 'chord-builder', label: 'Chord Builder', icon: '⌁' },
-  { id: 'edit-song', label: 'Edit Song / Chords', icon: '✎' },
   { id: 'view-song', label: 'Stage View', icon: '◉' },
 ];
 
@@ -608,6 +607,41 @@ function ViewSongPage({ onExit }) {
   </main></div>;
 }
 
+function PrintSongLyrics({ content }) {
+  const lines = (content || '').replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').split('\n');
+  return (
+    <div className="print-song-lyrics">
+      {lines.map((line, lineIndex) => {
+        const section = /^\{([^{}]+)\}$/.exec(line.trim());
+        if (section) return <h4 key={lineIndex}>{section[1]}</h4>;
+        if (!line.trim()) return <div aria-hidden="true" className="print-chord-line print-chord-line--blank" key={lineIndex} />;
+        const segments = [];
+        let pendingChords = [];
+        parseChordProLine(line).forEach((token) => {
+          if (token.chord) {
+            pendingChords.push(token.chord);
+          } else if (token.lyric) {
+            segments.push({ chord: pendingChords.join(' '), lyric: token.lyric });
+            pendingChords = [];
+          }
+        });
+        if (pendingChords.length) segments.push({ chord: pendingChords.join(' '), lyric: '' });
+        if (segments.length === 0) segments.push({ chord: '', lyric: '\u00a0' });
+        return (
+          <div className="print-chord-line" key={lineIndex}>
+            {segments.map((segment, segmentIndex) => (
+              <span className="print-chord-token" key={segmentIndex}>
+                <span className="print-chord-label">{segment.chord || '\u00a0'}</span>
+                <span className="print-lyric-text">{segment.lyric}</span>
+              </span>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ViewSetlistPage() {
   const location = useLocation();
   const [setlists, setSetlists] = useState([]);
@@ -633,6 +667,16 @@ function ViewSetlistPage() {
   );
   const selected = setlists.find((setlist) => setlist.id === selectedID) || null;
   const songsById = new Map(songs.map((song) => [song.id, song]));
+
+  function exportSetlistPDF() {
+    if (!selected) return;
+    const previousTitle = document.title;
+    document.title = `${selected.gigName || 'Setlist'} - Setlist`;
+    window.addEventListener('afterprint', () => {
+      document.title = previousTitle;
+    }, { once: true });
+    window.print();
+  }
 
   return (
     <div className="view-setlist-page">
@@ -673,13 +717,16 @@ function ViewSetlistPage() {
             <>
               <header className="saved-setlist-detail__heading">
                 <h2>{selected.gigName || 'Untitled setlist'}</h2>
-                <button
-                  className="view-setlist-edit"
-                  onClick={() => window.location.assign(`/admin/setlists?edit=${encodeURIComponent(selected.id)}`)}
-                  type="button"
-                >
-                  Edit Setlist
-                </button>
+                <div className="saved-setlist-detail__actions">
+                  <button className="view-setlist-export" onClick={exportSetlistPDF} type="button">Export PDF</button>
+                  <button
+                    className="view-setlist-edit"
+                    onClick={() => window.location.assign(`/admin/setlists?edit=${encodeURIComponent(selected.id)}`)}
+                    type="button"
+                  >
+                    Edit Setlist
+                  </button>
+                </div>
               </header>
               {(selected.categories || []).length === 0 ? (
                 <div className="category-empty">This setlist has no categories.</div>
@@ -694,12 +741,15 @@ function ViewSetlistPage() {
                         const song = songsById.get(songID);
                         if (!song) return null;
                         return (
-                          <div className="view-setlist-song" key={songID}>
-                            <b>{String(index + 1).padStart(2, '0')}</b>
-                            <strong>{song.title}</strong>
-                            <span>{song.artist || '—'}</span>
-                            <span>{song.defaultKey || '—'}</span>
-                          </div>
+                          <article className="view-setlist-print-song" key={`${category.id}-${songID}-${index}`}>
+                            <div className="view-setlist-song">
+                              <b>{String(index + 1).padStart(2, '0')}</b>
+                              <strong>{song.title}</strong>
+                              <span>{song.artist || '—'}</span>
+                              <span>{song.defaultKey || '—'}</span>
+                            </div>
+                            <PrintSongLyrics content={song.content} />
+                          </article>
                         );
                       })}
                     </div>
@@ -960,7 +1010,8 @@ function Workspace({ onViewStage }) {
         : 'setlist-builder';
   const [activePage, setActivePage] = useState(routePage);
   useEffect(() => setActivePage(routePage), [routePage]);
-  const page = pages.find((item) => item.id === activePage) ?? pages[0];
+  const page = pages.find((item) => item.id === activePage)
+    ?? (activePage === 'edit-song' ? { label: 'Edit Song / Chords', icon: '✎' } : pages[0]);
 
   function navigatePage(pageID) {
     const routes = {

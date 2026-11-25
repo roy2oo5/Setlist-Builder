@@ -1494,6 +1494,23 @@ h1, h2, h3, th, td, .brand strong,
   gap: 12px;
   justify-content: space-between;
 }
+.saved-setlist-detail__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.view-setlist-export {
+  background: var(--control) !important;
+  border: 1px solid #cbb998 !important;
+  border-radius: 7px;
+  color: var(--brown) !important;
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 8px 12px;
+}
+.print-song-lyrics { display: none; }
 .view-setlist-edit {
   background: var(--accent) !important;
   border: 1px solid #9a633f !important;
@@ -1596,4 +1613,125 @@ h1, h2, h3, th, td, .brand strong,
     width: calc(100% - 68px);
   }
   .stage-footer { left: 68px; }
+}
+
+@page {
+  margin: 14mm;
+}
+
+@media print {
+  html, body, #root {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  .app-shell {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  .sidebar, .topbar, .view-setlist-heading, .saved-setlists,
+  .saved-setlist-detail__actions {
+    display: none !important;
+  }
+  .main-content {
+    height: auto !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    scrollbar-gutter: auto !important;
+    width: auto !important;
+  }
+  .view-setlist-page {
+    background: #fff !important;
+    color: #111 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+  .view-setlist-layout { display: block !important; }
+  .saved-setlist-detail {
+    background: #fff !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+  .saved-setlist-detail > .saved-setlist-detail__heading {
+    border: 0 !important;
+    display: block !important;
+    margin: 0 0 16px !important;
+    padding: 0 !important;
+  }
+  .saved-setlist-detail h2 {
+    color: #111 !important;
+    font-size: 24pt !important;
+  }
+  .view-setlist-category {
+    break-inside: avoid-page;
+    border-color: #bbb !important;
+    margin: 0 0 14px !important;
+  }
+  .view-setlist-category h3 {
+    background: #eee !important;
+    break-after: avoid-page;
+    color: #111 !important;
+  }
+  .view-setlist-songs { padding: 4px 8px !important; }
+  .view-setlist-print-song { break-inside: auto; }
+  .view-setlist-song {
+    background: #fff !important;
+    border: 0 !important;
+    border-bottom: 1px solid #ddd !important;
+    color: #111 !important;
+    padding: 5px 0 !important;
+  }
+  .view-setlist-song strong,
+  .view-setlist-song span,
+  .view-setlist-song b {
+    color: #111 !important;
+  }
+  .print-song-lyrics {
+    color: #111 !important;
+    display: block !important;
+    font-size: 10pt;
+    line-height: 1.2;
+    padding: 2px 8px 8px;
+  }
+  .print-chord-line {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    line-height: 1.15;
+    min-height: 1.15em;
+  }
+  .print-chord-line--blank {
+    height: .35em;
+    line-height: 0;
+    min-height: 0;
+  }
+  .print-chord-token {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: bottom;
+    white-space: pre-wrap;
+  }
+  .print-chord-label {
+    color: #7b4b22 !important;
+    font-size: 8pt;
+    font-weight: 700;
+    line-height: 1;
+    min-height: 1em;
+    white-space: pre-wrap;
+  }
+  .print-lyric-text {
+    color: #111 !important;
+    line-height: 1.15;
+    white-space: pre-wrap;
+  }
+  .print-song-lyrics h4 {
+    break-after: avoid-page;
+    color: #333 !important;
+    font-size: 9pt;
+    margin: 8px 0 3px;
+  }
 }
