@@ -1488,6 +1488,24 @@ h1, h2, h3, th, td, .brand strong,
 .setlist-footer .amber-button { background: #f59e0b; color: #2a1700; font-weight: 700; }
 
 .fetch-message { color: var(--brown-2) !important; }
+.saved-setlist-detail > .saved-setlist-detail__heading {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+.view-setlist-edit {
+  background: var(--accent) !important;
+  border: 1px solid #9a633f !important;
+  border-radius: 7px;
+  color: #fffaf3 !important;
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+.view-setlist-edit:hover { filter: brightness(1.05); }
 
 @media (max-width: 1100px) {
   .setlist-columns { grid-template-columns: 1fr; }

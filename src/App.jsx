@@ -609,20 +609,23 @@ function ViewSongPage({ onExit }) {
 }
 
 function ViewSetlistPage() {
+  const location = useLocation();
   const [setlists, setSetlists] = useState([]);
   const [songs, setSongs] = useState([]);
   const [selectedID, setSelectedID] = useState('');
   const [search, setSearch] = useState('');
+  const requestedSetlistID = new URLSearchParams(location.search).get('selected');
 
   useEffect(() => {
     Promise.all([adminRequest('/api/admin/setlists'), adminRequest('/api/admin/songs')])
       .then(([loadedSetlists, loadedSongs]) => {
         setSetlists(loadedSetlists);
         setSongs(loadedSongs);
-        if (loadedSetlists.length > 0) setSelectedID(loadedSetlists[0].id);
+        const selected = loadedSetlists.find((setlist) => setlist.id === requestedSetlistID) || loadedSetlists[0];
+        setSelectedID(selected?.id || '');
       })
       .catch((error) => window.alert(error.message));
-  }, []);
+  }, [requestedSetlistID]);
 
   const normalizedSearch = search.trim().toLowerCase();
   const visibleSetlists = setlists.filter((setlist) =>
@@ -668,8 +671,15 @@ function ViewSetlistPage() {
             <div className="category-empty">Select a setlist to view it.</div>
           ) : (
             <>
-              <header>
+              <header className="saved-setlist-detail__heading">
                 <h2>{selected.gigName || 'Untitled setlist'}</h2>
+                <button
+                  className="view-setlist-edit"
+                  onClick={() => window.location.assign(`/admin/setlists?edit=${encodeURIComponent(selected.id)}`)}
+                  type="button"
+                >
+                  Edit Setlist
+                </button>
               </header>
               {(selected.categories || []).length === 0 ? (
                 <div className="category-empty">This setlist has no categories.</div>
@@ -705,17 +715,19 @@ function ViewSetlistPage() {
 }
 
 function SetlistBuilderPage() {
+  const location = useLocation();
+  const editSetlistID = new URLSearchParams(location.search).get('edit') || '';
   const [title, setTitle] = useState('');
   const [search, setSearch] = useState('');
   const [pushed, setPushed] = useState(false);
-  const [setlists, setSetlists] = useState([]);
-  const [currentSetlistID, setCurrentSetlistID] = useState('');
+  const [saving, setSaving] = useState(false);
   const [librarySongs, setLibrarySongs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeCategoryID, setActiveCategoryID] = useState('');
 
   useEffect(() => {
-    Promise.all([adminRequest('/api/admin/songs'), adminRequest('/api/admin/setlists')])
+    const setlistsRequest = editSetlistID ? adminRequest('/api/admin/setlists') : Promise.resolve([]);
+    Promise.all([adminRequest('/api/admin/songs'), setlistsRequest])
       .then(([items, setlists]) => {
         const mapped = items.map((song) => ({
           id: song.id,
@@ -725,22 +737,21 @@ function SetlistBuilderPage() {
           bpm: song.bpm,
         }));
         setLibrarySongs(mapped);
-        setSetlists(setlists);
-        const activeSetlist = setlists.find((setlist) => setlist.isActive) || setlists[0];
-        if (activeSetlist) {
-          setTitle(activeSetlist.gigName || '');
-          setCurrentSetlistID(activeSetlist.id || '');
-          const loadedCategories = (activeSetlist.categories || []).map((category) => ({
+        if (editSetlistID) {
+          const setlistToEdit = setlists.find((setlist) => setlist.id === editSetlistID);
+          if (!setlistToEdit) throw new Error('The selected setlist could not be found.');
+          setTitle(setlistToEdit.gigName || '');
+          const loadedCategories = (setlistToEdit.categories || []).map((category) => ({
             id: category.id,
             name: category.name,
-            songIds: category.songIds || [],
+            songIds: [...(category.songIds || [])],
           }));
           setCategories(loadedCategories);
           setActiveCategoryID(loadedCategories[0]?.id || '');
         }
       })
-      .catch((error) => console.error(error.message));
-  }, []);
+      .catch((error) => window.alert(error.message));
+  }, [editSetlistID]);
 
   const available = librarySongs.filter((song) =>
     `${song.title || ''} ${song.artist || ''}`.toLowerCase().includes(search.toLowerCase())
@@ -759,13 +770,6 @@ function SetlistBuilderPage() {
     };
     setCategories((current) => [...current, category]);
     setActiveCategoryID(category.id);
-  }
-
-  function createSetlist() {
-    setTitle('');
-    setCurrentSetlistID('');
-    setCategories([]);
-    setActiveCategoryID('');
   }
 
   function removeCategory(categoryID) {
@@ -820,36 +824,48 @@ function SetlistBuilderPage() {
       window.alert('Setlist name is required.');
       return;
     }
+    setSaving(true);
     try {
       const allSongIDs = categories.flatMap((category) => category.songIds);
       const saved = await adminRequest('/api/admin/setlists', {
         method: 'POST',
         body: JSON.stringify({
-          id: currentSetlistID || undefined,
+          id: editSetlistID || undefined,
           gigName: title.trim(),
           songIds: allSongIDs,
           categories,
           isActive: true,
         }),
       });
-      setCurrentSetlistID(saved.id || '');
+      if (editSetlistID) {
+        window.location.assign(`/admin/setlists/view?selected=${encodeURIComponent(saved.id || editSetlistID)}`);
+        return;
+      }
       setPushed(true);
+      setTitle('');
+      setSearch('');
+      setCategories([]);
+      setActiveCategoryID('');
       window.setTimeout(() => setPushed(false), 2800);
     } catch (error) {
       window.alert(error.message);
+    } finally {
+      setSaving(false);
     }
   }
+
+  const saveLabel = saving ? 'Saving...' : pushed ? 'Saved' : editSetlistID ? 'Save Changes' : 'Save Setlist';
 
   return (
     <div className="setlist-page">
       <header className="setlist-header">
         <div className="setlist-title-block">
-          <label>Setlist name</label>
+          <label>{editSetlistID ? 'Edit setlist name' : 'Setlist name'}</label>
           <input onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Friday Gig" value={title} />
         </div>
         <div className="setlist-header-actions">
-          <button onClick={createSetlist} type="button">New Setlist</button>
-          <button className="amber-button" onClick={pushStage} type="button">{pushed ? 'Saved' : 'Save Setlist'}</button>
+          {editSetlistID && <button onClick={() => window.location.assign(`/admin/setlists/view?selected=${encodeURIComponent(editSetlistID)}`)} type="button">Cancel Edit</button>}
+          <button className="amber-button" disabled={saving} onClick={pushStage} type="button">{saveLabel}</button>
         </div>
         <div className="setlist-metrics">
           <div><small>Categories</small><strong>{categories.length}</strong></div>
@@ -922,7 +938,7 @@ function SetlistBuilderPage() {
           ))}
         </section>
       </div>
-      <footer className="setlist-footer"><strong>{totalSongs} songs in setlist</strong><button className="amber-button" onClick={pushStage} type="button">{pushed ? 'Setlist Saved' : 'Save Setlist'}</button></footer>
+      <footer className="setlist-footer"><strong>{totalSongs} songs in setlist</strong><button className="amber-button" disabled={saving} onClick={pushStage} type="button">{saveLabel}</button></footer>
     </div>
   );
 }
