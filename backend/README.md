@@ -78,3 +78,33 @@ curl http://localhost:8080/api/auth/me \
 Sessions expire after 24 hours and are automatically removed by MongoDB's TTL
 index. Startup also creates indexes for song search, chord charts, stage
 snapshots, setlist ordering, users, and sessions.
+
+## Standalone Local Stage Relay
+
+The Stage Relay is a separate server for offline gigs. It does not connect to
+MongoDB or require internet access. From the repository root, build the
+React app, embed it in the relay, and cross-compile for Android/Termux with:
+
+```bash
+make build-android
+```
+
+The binary is written to `backend/bin/stage-relay-arm64`. Copy it to the
+Android device that is hosting the phone hotspot, then run it from Termux:
+
+```bash
+chmod +x stage-relay-arm64
+./stage-relay-arm64
+```
+
+The relay listens on `0.0.0.0:8080` and stores `gig-pack.json` beside the
+binary. Connect devices to the same hotspot and open
+`http://<relay-hotspot-ip>:8080/stage`. In Stage View, import a gig-pack JSON
+exported from the Admin Console or use **Sync Gig Now**. The client caches the
+setlist and songs on each device for offline use. The relay exposes
+`GET /api/stage/gig-pack`, `POST /api/stage/gig-pack`, and the `/ws` live-sync
+endpoint.
+
+For local development, run `npm run build:stage-relay` before building or
+running `go run ./cmd/stage-relay` from `backend/`; this places the Vite
+production assets in the relay's embedded web directory.
