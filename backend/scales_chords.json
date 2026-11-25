@@ -1,0 +1,2102 @@
+[
+  {
+    "scale": "C",
+    "type": "Major",
+    "notes": [
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "A",
+      "B"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "C",
+        "seventh": "Cmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 4,
+        "triad": "F",
+        "seventh": "Fmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "G",
+        "seventh": "G7"
+      },
+      {
+        "degree": 6,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 7,
+        "triad": "Bdim",
+        "seventh": "Bm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Cm",
+    "type": "Minor",
+    "notes": [
+      "C",
+      "D",
+      "D#",
+      "F",
+      "G",
+      "G#",
+      "A#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Ddim",
+        "seventh": "Dm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "D#",
+        "seventh": "D#maj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 6,
+        "triad": "G#",
+        "seventh": "G#maj7"
+      },
+      {
+        "degree": 7,
+        "triad": "A#",
+        "seventh": "A#7"
+      }
+    ]
+  },
+  {
+    "scale": "CM7",
+    "type": "Major 7th",
+    "notes": [
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "A",
+      "B"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "C",
+        "seventh": "Cmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 4,
+        "triad": "F",
+        "seventh": "Fmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "G",
+        "seventh": "G7"
+      },
+      {
+        "degree": 6,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 7,
+        "triad": "Bdim",
+        "seventh": "Bm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "C#",
+    "type": "Major",
+    "notes": [
+      "C#",
+      "D#",
+      "F",
+      "F#",
+      "G#",
+      "A#",
+      "C"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "C#",
+        "seventh": "C#maj7"
+      },
+      {
+        "degree": 2,
+        "triad": "D#m",
+        "seventh": "D#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 4,
+        "triad": "F#",
+        "seventh": "F#maj7"
+      },
+      {
+        "degree": 5,
+        "triad": "G#",
+        "seventh": "G#7"
+      },
+      {
+        "degree": 6,
+        "triad": "A#m",
+        "seventh": "A#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "Cdim",
+        "seventh": "Cm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "C#m",
+    "type": "Minor",
+    "notes": [
+      "C#",
+      "D#",
+      "E",
+      "F#",
+      "G#",
+      "A",
+      "B"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 2,
+        "triad": "D#dim",
+        "seventh": "D#m7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "E",
+        "seventh": "Emaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 5,
+        "triad": "G#m",
+        "seventh": "G#m7"
+      },
+      {
+        "degree": 6,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "B",
+        "seventh": "B7"
+      }
+    ]
+  },
+  {
+    "scale": "C#M7",
+    "type": "Major 7th",
+    "notes": [
+      "C#",
+      "D#",
+      "F",
+      "F#",
+      "G#",
+      "A#",
+      "C"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "C#",
+        "seventh": "C#maj7"
+      },
+      {
+        "degree": 2,
+        "triad": "D#m",
+        "seventh": "D#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 4,
+        "triad": "F#",
+        "seventh": "F#maj7"
+      },
+      {
+        "degree": 5,
+        "triad": "G#",
+        "seventh": "G#7"
+      },
+      {
+        "degree": 6,
+        "triad": "A#m",
+        "seventh": "A#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "Cdim",
+        "seventh": "Cm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Db",
+    "type": "Major",
+    "notes": [
+      "Db",
+      "Eb",
+      "F",
+      "Gb",
+      "Ab",
+      "Bb",
+      "C"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Db",
+        "seventh": "Dbmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Ebm",
+        "seventh": "Ebm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Gb",
+        "seventh": "Gbmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Ab",
+        "seventh": "Ab7"
+      },
+      {
+        "degree": 6,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Cdim",
+        "seventh": "Cm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Dbm",
+    "type": "Minor",
+    "notes": [
+      "Db",
+      "Eb",
+      "E",
+      "Gb",
+      "Ab",
+      "A",
+      "B"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Dbm",
+        "seventh": "Dbm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Ebdim",
+        "seventh": "Ebm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "E",
+        "seventh": "Emaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Gbm",
+        "seventh": "Gbm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Abm",
+        "seventh": "Abm7"
+      },
+      {
+        "degree": 6,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "B",
+        "seventh": "B7"
+      }
+    ]
+  },
+  {
+    "scale": "DbM7",
+    "type": "Major 7th",
+    "notes": [
+      "Db",
+      "Eb",
+      "F",
+      "Gb",
+      "Ab",
+      "Bb",
+      "C"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Db",
+        "seventh": "Dbmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Ebm",
+        "seventh": "Ebm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Gb",
+        "seventh": "Gbmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Ab",
+        "seventh": "Ab7"
+      },
+      {
+        "degree": 6,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Cdim",
+        "seventh": "Cm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "D",
+    "type": "Major",
+    "notes": [
+      "D",
+      "E",
+      "F#",
+      "G",
+      "A",
+      "B",
+      "C#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "D",
+        "seventh": "Dmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 3,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "G",
+        "seventh": "Gmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "A",
+        "seventh": "A7"
+      },
+      {
+        "degree": 6,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 7,
+        "triad": "C#dim",
+        "seventh": "C#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Dm",
+    "type": "Minor",
+    "notes": [
+      "D",
+      "E",
+      "F",
+      "G",
+      "A",
+      "A#",
+      "C"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Edim",
+        "seventh": "Em7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "F",
+        "seventh": "Fmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 6,
+        "triad": "A#",
+        "seventh": "A#maj7"
+      },
+      {
+        "degree": 7,
+        "triad": "C",
+        "seventh": "C7"
+      }
+    ]
+  },
+  {
+    "scale": "DM7",
+    "type": "Major 7th",
+    "notes": [
+      "D",
+      "E",
+      "F#",
+      "G",
+      "A",
+      "B",
+      "C#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "D",
+        "seventh": "Dmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 3,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "G",
+        "seventh": "Gmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "A",
+        "seventh": "A7"
+      },
+      {
+        "degree": 6,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 7,
+        "triad": "C#dim",
+        "seventh": "C#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Eb",
+    "type": "Major",
+    "notes": [
+      "Eb",
+      "F",
+      "G",
+      "Ab",
+      "Bb",
+      "C",
+      "D"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Eb",
+        "seventh": "Ebmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Ab",
+        "seventh": "Abmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Bb",
+        "seventh": "Bb7"
+      },
+      {
+        "degree": 6,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Ddim",
+        "seventh": "Dm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Ebm",
+    "type": "Minor",
+    "notes": [
+      "Eb",
+      "F",
+      "Gb",
+      "Ab",
+      "Bb",
+      "B",
+      "Db"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Ebm",
+        "seventh": "Ebm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Fdim",
+        "seventh": "Fm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "Gb",
+        "seventh": "Gbmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Abm",
+        "seventh": "Abm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 6,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "Db",
+        "seventh": "Db7"
+      }
+    ]
+  },
+  {
+    "scale": "EbM7",
+    "type": "Major 7th",
+    "notes": [
+      "Eb",
+      "F",
+      "G",
+      "Ab",
+      "Bb",
+      "C",
+      "D"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Eb",
+        "seventh": "Ebmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Ab",
+        "seventh": "Abmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Bb",
+        "seventh": "Bb7"
+      },
+      {
+        "degree": 6,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Ddim",
+        "seventh": "Dm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "E",
+    "type": "Major",
+    "notes": [
+      "E",
+      "F#",
+      "G#",
+      "A",
+      "B",
+      "C#",
+      "D#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "E",
+        "seventh": "Emaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "G#m",
+        "seventh": "G#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "B",
+        "seventh": "B7"
+      },
+      {
+        "degree": 6,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "D#dim",
+        "seventh": "D#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Em",
+    "type": "Minor",
+    "notes": [
+      "E",
+      "F#",
+      "G",
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 2,
+        "triad": "F#dim",
+        "seventh": "F#m7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "G",
+        "seventh": "Gmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 5,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 6,
+        "triad": "C",
+        "seventh": "Cmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "D",
+        "seventh": "D7"
+      }
+    ]
+  },
+  {
+    "scale": "EM7",
+    "type": "Major 7th",
+    "notes": [
+      "E",
+      "F#",
+      "G#",
+      "A",
+      "B",
+      "C#",
+      "D#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "E",
+        "seventh": "Emaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "G#m",
+        "seventh": "G#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "B",
+        "seventh": "B7"
+      },
+      {
+        "degree": 6,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "D#dim",
+        "seventh": "D#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "F",
+    "type": "Major",
+    "notes": [
+      "F",
+      "G",
+      "A",
+      "Bb",
+      "C",
+      "D",
+      "E"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "F",
+        "seventh": "Fmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 4,
+        "triad": "Bb",
+        "seventh": "Bbmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "C",
+        "seventh": "C7"
+      },
+      {
+        "degree": 6,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Edim",
+        "seventh": "Em7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Fm",
+    "type": "Minor",
+    "notes": [
+      "F",
+      "G",
+      "Ab",
+      "Bb",
+      "C",
+      "Db",
+      "Eb"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Gdim",
+        "seventh": "Gm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "Ab",
+        "seventh": "Abmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 6,
+        "triad": "Db",
+        "seventh": "Dbmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "Eb",
+        "seventh": "Eb7"
+      }
+    ]
+  },
+  {
+    "scale": "FM7",
+    "type": "Major 7th",
+    "notes": [
+      "F",
+      "G",
+      "A",
+      "Bb",
+      "C",
+      "D",
+      "E"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "F",
+        "seventh": "Fmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 4,
+        "triad": "Bb",
+        "seventh": "Bbmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "C",
+        "seventh": "C7"
+      },
+      {
+        "degree": 6,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Edim",
+        "seventh": "Em7b5"
+      }
+    ]
+  },
+  {
+    "scale": "F#",
+    "type": "Major",
+    "notes": [
+      "F#",
+      "G#",
+      "A#",
+      "B",
+      "C#",
+      "D#",
+      "F"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "F#",
+        "seventh": "F#maj7"
+      },
+      {
+        "degree": 2,
+        "triad": "G#m",
+        "seventh": "G#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "A#m",
+        "seventh": "A#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "C#",
+        "seventh": "C#7"
+      },
+      {
+        "degree": 6,
+        "triad": "D#m",
+        "seventh": "D#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "Fdim",
+        "seventh": "Fm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "F#m",
+    "type": "Minor",
+    "notes": [
+      "F#",
+      "G#",
+      "A",
+      "B",
+      "C#",
+      "D",
+      "E"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 2,
+        "triad": "G#dim",
+        "seventh": "G#m7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 5,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 6,
+        "triad": "D",
+        "seventh": "Dmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "E",
+        "seventh": "E7"
+      }
+    ]
+  },
+  {
+    "scale": "F#M7",
+    "type": "Major 7th",
+    "notes": [
+      "F#",
+      "G#",
+      "A#",
+      "B",
+      "C#",
+      "D#",
+      "F"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "F#",
+        "seventh": "F#maj7"
+      },
+      {
+        "degree": 2,
+        "triad": "G#m",
+        "seventh": "G#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "A#m",
+        "seventh": "A#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "C#",
+        "seventh": "C#7"
+      },
+      {
+        "degree": 6,
+        "triad": "D#m",
+        "seventh": "D#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "Fdim",
+        "seventh": "Fm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Gb",
+    "type": "Major",
+    "notes": [
+      "Gb",
+      "Ab",
+      "Bb",
+      "B",
+      "Db",
+      "Eb",
+      "F"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Gb",
+        "seventh": "Gbmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Abm",
+        "seventh": "Abm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 4,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Db",
+        "seventh": "Db7"
+      },
+      {
+        "degree": 6,
+        "triad": "Ebm",
+        "seventh": "Ebm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Fdim",
+        "seventh": "Fm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Gbm",
+    "type": "Minor",
+    "notes": [
+      "Gb",
+      "Ab",
+      "A",
+      "B",
+      "Db",
+      "D",
+      "E"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Gbm",
+        "seventh": "Gbm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Abdim",
+        "seventh": "Abm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Dbm",
+        "seventh": "Dbm7"
+      },
+      {
+        "degree": 6,
+        "triad": "D",
+        "seventh": "Dmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "E",
+        "seventh": "E7"
+      }
+    ]
+  },
+  {
+    "scale": "GbM7",
+    "type": "Major 7th",
+    "notes": [
+      "Gb",
+      "Ab",
+      "Bb",
+      "B",
+      "Db",
+      "Eb",
+      "F"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Gb",
+        "seventh": "Gbmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Abm",
+        "seventh": "Abm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 4,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Db",
+        "seventh": "Db7"
+      },
+      {
+        "degree": 6,
+        "triad": "Ebm",
+        "seventh": "Ebm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Fdim",
+        "seventh": "Fm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "G",
+    "type": "Major",
+    "notes": [
+      "G",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "G",
+        "seventh": "Gmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 3,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 4,
+        "triad": "C",
+        "seventh": "Cmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "D",
+        "seventh": "D7"
+      },
+      {
+        "degree": 6,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 7,
+        "triad": "F#dim",
+        "seventh": "F#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Gm",
+    "type": "Minor",
+    "notes": [
+      "G",
+      "A",
+      "A#",
+      "C",
+      "D",
+      "D#",
+      "F"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Adim",
+        "seventh": "Am7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "A#",
+        "seventh": "A#maj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 6,
+        "triad": "D#",
+        "seventh": "D#maj7"
+      },
+      {
+        "degree": 7,
+        "triad": "F",
+        "seventh": "F7"
+      }
+    ]
+  },
+  {
+    "scale": "GM7",
+    "type": "Major 7th",
+    "notes": [
+      "G",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "G",
+        "seventh": "Gmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 3,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 4,
+        "triad": "C",
+        "seventh": "Cmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "D",
+        "seventh": "D7"
+      },
+      {
+        "degree": 6,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 7,
+        "triad": "F#dim",
+        "seventh": "F#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Ab",
+    "type": "Major",
+    "notes": [
+      "Ab",
+      "Bb",
+      "C",
+      "Db",
+      "Eb",
+      "F",
+      "G"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Ab",
+        "seventh": "Abmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Db",
+        "seventh": "Dbmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Eb",
+        "seventh": "Eb7"
+      },
+      {
+        "degree": 6,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Gdim",
+        "seventh": "Gm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Abm",
+    "type": "Minor",
+    "notes": [
+      "Ab",
+      "Bb",
+      "B",
+      "Db",
+      "Eb",
+      "E",
+      "Gb"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Abm",
+        "seventh": "Abm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Bbdim",
+        "seventh": "Bbm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Dbm",
+        "seventh": "Dbm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Ebm",
+        "seventh": "Ebm7"
+      },
+      {
+        "degree": 6,
+        "triad": "E",
+        "seventh": "Emaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "Gb",
+        "seventh": "Gb7"
+      }
+    ]
+  },
+  {
+    "scale": "AbM7",
+    "type": "Major 7th",
+    "notes": [
+      "Ab",
+      "Bb",
+      "C",
+      "Db",
+      "Eb",
+      "F",
+      "G"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Ab",
+        "seventh": "Abmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Db",
+        "seventh": "Dbmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "Eb",
+        "seventh": "Eb7"
+      },
+      {
+        "degree": 6,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Gdim",
+        "seventh": "Gm7b5"
+      }
+    ]
+  },
+  {
+    "scale": "A",
+    "type": "Major",
+    "notes": [
+      "A",
+      "B",
+      "C#",
+      "D",
+      "E",
+      "F#",
+      "G#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 3,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "D",
+        "seventh": "Dmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "E",
+        "seventh": "E7"
+      },
+      {
+        "degree": 6,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "G#dim",
+        "seventh": "G#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Am",
+    "type": "Minor",
+    "notes": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Am",
+        "seventh": "Am7"
+      },
+      {
+        "degree": 2,
+        "triad": "Bdim",
+        "seventh": "Bm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "C",
+        "seventh": "Cmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 6,
+        "triad": "F",
+        "seventh": "Fmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "G",
+        "seventh": "G7"
+      }
+    ]
+  },
+  {
+    "scale": "AM7",
+    "type": "Major 7th",
+    "notes": [
+      "A",
+      "B",
+      "C#",
+      "D",
+      "E",
+      "F#",
+      "G#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "A",
+        "seventh": "Amaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 3,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "D",
+        "seventh": "Dmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "E",
+        "seventh": "E7"
+      },
+      {
+        "degree": 6,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "G#dim",
+        "seventh": "G#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Bb",
+    "type": "Major",
+    "notes": [
+      "Bb",
+      "C",
+      "D",
+      "Eb",
+      "F",
+      "G",
+      "A"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Bb",
+        "seventh": "Bbmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Eb",
+        "seventh": "Ebmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "F",
+        "seventh": "F7"
+      },
+      {
+        "degree": 6,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Adim",
+        "seventh": "Am7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Bbm",
+    "type": "Minor",
+    "notes": [
+      "Bb",
+      "C",
+      "Db",
+      "Eb",
+      "F",
+      "Gb",
+      "Ab"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Bbm",
+        "seventh": "Bbm7"
+      },
+      {
+        "degree": 2,
+        "triad": "Cdim",
+        "seventh": "Cm7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "Db",
+        "seventh": "Dbmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Ebm",
+        "seventh": "Ebm7"
+      },
+      {
+        "degree": 5,
+        "triad": "Fm",
+        "seventh": "Fm7"
+      },
+      {
+        "degree": 6,
+        "triad": "Gb",
+        "seventh": "Gbmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "Ab",
+        "seventh": "Ab7"
+      }
+    ]
+  },
+  {
+    "scale": "BbM7",
+    "type": "Major 7th",
+    "notes": [
+      "Bb",
+      "C",
+      "D",
+      "Eb",
+      "F",
+      "G",
+      "A"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Bb",
+        "seventh": "Bbmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "Cm",
+        "seventh": "Cm7"
+      },
+      {
+        "degree": 3,
+        "triad": "Dm",
+        "seventh": "Dm7"
+      },
+      {
+        "degree": 4,
+        "triad": "Eb",
+        "seventh": "Ebmaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "F",
+        "seventh": "F7"
+      },
+      {
+        "degree": 6,
+        "triad": "Gm",
+        "seventh": "Gm7"
+      },
+      {
+        "degree": 7,
+        "triad": "Adim",
+        "seventh": "Am7b5"
+      }
+    ]
+  },
+  {
+    "scale": "B",
+    "type": "Major",
+    "notes": [
+      "B",
+      "C#",
+      "D#",
+      "E",
+      "F#",
+      "G#",
+      "A#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "D#m",
+        "seventh": "D#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "E",
+        "seventh": "Emaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "F#",
+        "seventh": "F#7"
+      },
+      {
+        "degree": 6,
+        "triad": "G#m",
+        "seventh": "G#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "A#dim",
+        "seventh": "A#m7b5"
+      }
+    ]
+  },
+  {
+    "scale": "Bm",
+    "type": "Minor",
+    "notes": [
+      "B",
+      "C#",
+      "D",
+      "E",
+      "F#",
+      "G",
+      "A"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "Bm",
+        "seventh": "Bm7"
+      },
+      {
+        "degree": 2,
+        "triad": "C#dim",
+        "seventh": "C#m7b5"
+      },
+      {
+        "degree": 3,
+        "triad": "D",
+        "seventh": "Dmaj7"
+      },
+      {
+        "degree": 4,
+        "triad": "Em",
+        "seventh": "Em7"
+      },
+      {
+        "degree": 5,
+        "triad": "F#m",
+        "seventh": "F#m7"
+      },
+      {
+        "degree": 6,
+        "triad": "G",
+        "seventh": "Gmaj7"
+      },
+      {
+        "degree": 7,
+        "triad": "A",
+        "seventh": "A7"
+      }
+    ]
+  },
+  {
+    "scale": "BM7",
+    "type": "Major 7th",
+    "notes": [
+      "B",
+      "C#",
+      "D#",
+      "E",
+      "F#",
+      "G#",
+      "A#"
+    ],
+    "chords": [
+      {
+        "degree": 1,
+        "triad": "B",
+        "seventh": "Bmaj7"
+      },
+      {
+        "degree": 2,
+        "triad": "C#m",
+        "seventh": "C#m7"
+      },
+      {
+        "degree": 3,
+        "triad": "D#m",
+        "seventh": "D#m7"
+      },
+      {
+        "degree": 4,
+        "triad": "E",
+        "seventh": "Emaj7"
+      },
+      {
+        "degree": 5,
+        "triad": "F#",
+        "seventh": "F#7"
+      },
+      {
+        "degree": 6,
+        "triad": "G#m",
+        "seventh": "G#m7"
+      },
+      {
+        "degree": 7,
+        "triad": "A#dim",
+        "seventh": "A#m7b5"
+      }
+    ]
+  }
+]
