@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { adminRequest, setAdminToken } from './api/adminClient';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -571,40 +571,284 @@ function EditSongPage() {
   );
 }
 
-function ViewSongPage({ onExit }) {
+function getChordLineSegments(line) {
+  const segments = [];
+  let pendingChords = [];
+  parseChordProLine(line).forEach((token) => {
+    if (token.chord) {
+      pendingChords.push(token.chord);
+    } else if (token.lyric) {
+      segments.push({ chord: pendingChords.join(' '), lyric: token.lyric });
+      pendingChords = [];
+    }
+  });
+  if (pendingChords.length) segments.push({ chord: pendingChords.join(' '), lyric: '' });
+  if (segments.length === 0) segments.push({ chord: '', lyric: '\u00a0' });
+  return segments;
+}
+
+function StageSongLyrics({ content, viewMode }) {
+  const lines = (content || '').replace(/\r\n/g, '\n').split('\n');
+  return (
+    <div className="stage-live-lyrics">
+      {lines.map((line, lineIndex) => {
+        const section = /^\{([^{}]+)\}$/.exec(line.trim());
+        if (section) return <h3 key={lineIndex}>{section[1]}</h3>;
+        if (!line.trim()) return <div aria-hidden="true" className="stage-live-line stage-live-line--blank" key={lineIndex} />;
+        return (
+          <div className="stage-live-line" key={lineIndex}>
+            {getChordLineSegments(line).map((segment, segmentIndex) => (
+              <span className="stage-live-token" key={segmentIndex}>
+                <span className={`stage-live-chord ${viewMode === 'vocalist' ? 'stage-live-chord--hidden' : ''}`}>{segment.chord || '\u00a0'}</span>
+                <span className="stage-live-text">{segment.lyric}</span>
+              </span>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ViewSongPage() {
   const [viewMode, setViewMode] = useState('both');
-  const [fontScale, setFontScale] = useState(1.15);
+  const [fontScale, setFontScale] = useState(1);
   const [autoScroll, setAutoScroll] = useState(false);
   const [oled, setOled] = useState(false);
-  const [clock, setClock] = useState('');
-  const [loadedSong, setLoadedSong] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [setlists, setSetlists] = useState([]);
+  const [songs, setSongs] = useState([]);
+  const [search, setSearch] = useState('');
+  const [activeCategoryID, setActiveCategoryID] = useState('');
+  const [activeEntryKey, setActiveEntryKey] = useState('');
+  const [transposeByEntry, setTransposeByEntry] = useState({});
+  const readerRef = useRef(null);
+  const songNodes = useRef(new Map());
   const location = useLocation();
-  const songId = location.pathname.split('/')[3];
+  const setlistID = location.pathname.split('/')[3] || '';
+
   useEffect(() => {
-    if (!songId) return;
-    adminRequest(`/api/admin/songs/${songId}`).then(setLoadedSong).catch((error) => window.alert(error.message));
-  }, [songId]);
+    let cancelled = false;
+    setLoading(true);
+    setLoadError('');
+    Promise.all([adminRequest('/api/admin/setlists'), adminRequest('/api/admin/songs')])
+      .then(([loadedSetlists, loadedSongs]) => {
+        if (cancelled) return;
+        setSetlists(loadedSetlists);
+        setSongs(loadedSongs);
+        if (setlistID && !loadedSetlists.some((setlist) => setlist.id === setlistID)) {
+          setLoadError('The selected setlist could not be found.');
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) setLoadError(error.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [setlistID]);
+
+  const selectedSetlist = setlists.find((setlist) => setlist.id === setlistID) || null;
+  const songsById = new Map(songs.map((song) => [song.id, song]));
+  const entries = (selectedSetlist?.categories || []).flatMap((category, categoryIndex) =>
+    (category.songIds || []).map((songID, songIndex) => {
+      const song = songsById.get(songID);
+      return song ? {
+        category,
+        categoryIndex,
+        key: `${categoryIndex}:${category.id}:${songID}:${songIndex}`,
+        song,
+        songIndex,
+      } : null;
+    }).filter(Boolean)
+  );
+
   useEffect(() => {
-    const updateClock = () => setClock(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    updateClock();
-    const timer = window.setInterval(updateClock, 10000);
-    return () => window.clearInterval(timer);
-  }, []);
+    if (!selectedSetlist) return;
+    const firstEntry = entries[0];
+    setActiveEntryKey(firstEntry?.key || '');
+    setActiveCategoryID(firstEntry?.category.id || selectedSetlist.categories?.[0]?.id || '');
+    setTransposeByEntry({});
+    setSearch('');
+    if (readerRef.current) readerRef.current.scrollTop = 0;
+  }, [selectedSetlist, setlistID]);
+
   useEffect(() => {
     if (!autoScroll) return undefined;
-    const timer = window.setInterval(() => window.scrollBy({ top: 1, behavior: 'instant' }), 40);
+    const timer = window.setInterval(() => readerRef.current?.scrollBy({ top: 1, behavior: 'instant' }), 40);
     return () => window.clearInterval(timer);
   }, [autoScroll]);
 
-  function LyricSection({ title, note, lines, chorus = false }) {
-    return <section className={`stage-section ${chorus ? 'stage-section--chorus' : ''}`}><div className="stage-section__heading"><span>[ {title} ]</span><small>{note}</small></div><div className="stage-lines">{lines.map((line) => <div className="stage-line" key={line[3]}><div className={`stage-chords ${viewMode === 'vocalist' ? 'stage-chords--hidden' : ''}`}><b>{line[0]}</b><b>{line[1]}</b><b>{line[2]}</b></div><p>{line[3]} <span>{line[4]}</span></p></div>)}</div></section>;
+  function jumpToEntry(entry) {
+    if (!entry) return;
+    setActiveEntryKey(entry.key);
+    setActiveCategoryID(entry.category.id);
+    setSearch('');
+    songNodes.current.get(entry.key)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  return <div className="stage-app-shell"><Sidebar activePage="view-song" onNavigate={onExit} onViewStage={() => {}} /><main className={`view-stage ${oled ? 'view-stage--oled' : ''}`}>
-    <header className="stage-toolbar"><div className="stage-toolbar__left"><button className="exit-stage" onClick={onExit} type="button">← &nbsp; Exit Stage</button><h1>{loadedSong?.title || 'No song selected'}{loadedSong?.artist ? <small> — {loadedSong.artist}</small> : null}</h1></div><div className="stage-meta">{loadedSong?.defaultKey && <span>KEY <b>{loadedSong.defaultKey}</b></span>}{loadedSong?.bpm ? <span>{loadedSong.bpm} BPM</span> : null}{loadedSong?.timeSignature && <span>{loadedSong.timeSignature}</span>}</div><div className="stage-controls"><div className="stage-mode"><button className={viewMode === 'both' ? 'selected' : ''} onClick={() => setViewMode('both')} type="button">CHORDS &amp; LYRICS</button><button className={viewMode === 'vocalist' ? 'selected' : ''} onClick={() => setViewMode('vocalist')} type="button">VOCALIST</button></div><div className="font-control"><button onClick={() => setFontScale((value) => Math.max(.9, value - .1))} type="button">A-</button><b>{Math.round(fontScale * 100)}%</b><button onClick={() => setFontScale((value) => Math.min(1.6, value + .1))} type="button">A+</button></div><button className={autoScroll ? 'stage-control selected' : 'stage-control'} onClick={() => setAutoScroll((value) => !value)} type="button">{autoScroll ? 'Ⅱ Pause' : '▶ Auto Scroll'}</button><button className="stage-control" onClick={() => setOled((value) => !value)} type="button">Low Glare</button></div></header>
-    <div className="stage-canvas" style={{ fontSize: `${fontScale}em` }}><div className="stage-sheet">{loadedSong?.content ? <pre>{viewMode === 'vocalist' ? loadedSong.content.replace(/\[([^\]]+)\]/g, '') : loadedSong.content}</pre> : <p>No song content available.</p>}</div></div>
-    <footer className="stage-footer"><span>{clock}</span></footer>
-  </main></div>;
+  function handleReaderScroll(event) {
+    const threshold = event.currentTarget.getBoundingClientRect().top + 48;
+    let visibleEntry = entries[0];
+    entries.forEach((entry) => {
+      const node = songNodes.current.get(entry.key);
+      if (node && node.getBoundingClientRect().top <= threshold) visibleEntry = entry;
+    });
+    if (visibleEntry) {
+      setActiveEntryKey(visibleEntry.key);
+      setActiveCategoryID(visibleEntry.category.id);
+    }
+  }
+
+  function navigateWorkspace(pageID) {
+    const routes = {
+      'setlist-builder': '/admin/setlists',
+      'view-setlist': '/admin/setlists/view',
+      library: '/admin/songs',
+      'add-song': '/admin/songs/new',
+      'chord-builder': '/admin/songs/new/chords',
+      'edit-song': '/admin/songs',
+    };
+    window.location.assign(routes[pageID] || '/admin/songs');
+  }
+
+  const activeEntryIndex = entries.findIndex((entry) => entry.key === activeEntryKey);
+  const activeEntry = entries[activeEntryIndex] || null;
+  const searchResults = search.trim()
+    ? entries.filter(({ category, song }) => `${song.title || ''} ${song.artist || ''} ${category.name || ''}`.toLowerCase().includes(search.trim().toLowerCase())).slice(0, 8)
+    : [];
+
+  return (
+    <div className={`stage-app-shell ${setlistID ? 'stage-app-shell--player' : ''}`}>
+      {!setlistID && <Sidebar activePage="view-song" onNavigate={navigateWorkspace} onViewStage={() => window.location.assign('/admin/stage')} />}
+      <main className={`view-stage ${oled ? 'view-stage--oled' : ''}`}>
+        <header className="stage-toolbar">
+          <div className="stage-toolbar__left">
+            <button className="exit-stage" onClick={() => window.location.assign(setlistID ? '/admin/stage' : '/admin/setlists')} type="button">
+              {setlistID ? '← All Setlists' : '← Setlist Builder'}
+            </button>
+            <h1>{selectedSetlist?.gigName || (setlistID ? 'Stage View' : 'Choose a Setlist')}</h1>
+          </div>
+          {selectedSetlist && (
+            <div className="stage-controls">
+              <div className="stage-song-search">
+                <input aria-label="Search songs in this setlist" onChange={(event) => setSearch(event.target.value)} placeholder="Search songs" value={search} />
+                {search.trim() && (
+                  <div className="stage-search-results">
+                    {searchResults.length ? searchResults.map((entry) => (
+                      <button key={entry.key} onClick={() => jumpToEntry(entry)} type="button">
+                        <strong>{entry.song.title}</strong><span>{entry.category.name}</span>
+                      </button>
+                    )) : <p>No matching songs.</p>}
+                  </div>
+                )}
+              </div>
+              <button className="stage-control" disabled={activeEntryIndex <= 0} onClick={() => jumpToEntry(entries[activeEntryIndex - 1])} type="button">← Previous</button>
+              <button className="stage-control" disabled={activeEntryIndex < 0 || activeEntryIndex >= entries.length - 1} onClick={() => jumpToEntry(entries[activeEntryIndex + 1])} type="button">Next →</button>
+              <div className="stage-mode">
+                <button className={viewMode === 'both' ? 'selected' : ''} onClick={() => setViewMode('both')} type="button">CHORDS &amp; LYRICS</button>
+                <button className={viewMode === 'vocalist' ? 'selected' : ''} onClick={() => setViewMode('vocalist')} type="button">VOCALIST</button>
+              </div>
+              <div className="font-control">
+                <button onClick={() => setFontScale((value) => Math.max(.85, value - .1))} type="button">A-</button>
+                <b>{Math.round(fontScale * 100)}%</b>
+                <button onClick={() => setFontScale((value) => Math.min(1.5, value + .1))} type="button">A+</button>
+              </div>
+              <button className={autoScroll ? 'stage-control selected' : 'stage-control'} onClick={() => setAutoScroll((value) => !value)} type="button">{autoScroll ? 'Ⅱ Pause' : '▶ Auto Scroll'}</button>
+              <button className="stage-control" onClick={() => setOled((value) => !value)} type="button">Low Glare</button>
+            </div>
+          )}
+        </header>
+
+        {!setlistID ? (
+          <section className="stage-setlist-picker">
+            {loading ? <p className="stage-empty-state">Loading setlists...</p> : loadError ? <p className="stage-empty-state" role="alert">{loadError}</p> : setlists.length === 0 ? (
+              <p className="stage-empty-state">No saved setlists. Create one in Setlist Builder first.</p>
+            ) : (
+              <div className="stage-setlist-grid">
+                {setlists.map((setlist) => (
+                  <button className="stage-setlist-card" key={setlist.id} onClick={() => window.location.assign(`/admin/stage/${encodeURIComponent(setlist.id)}`)} type="button">
+                    <strong>{setlist.gigName || 'Untitled setlist'}</strong>
+                    <span>{(setlist.categories || []).length} categories · {(setlist.songIds || []).length} songs</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        ) : loading ? (
+          <p className="stage-empty-state">{'Loading setlist...'}</p>
+        ) : loadError || !selectedSetlist ? (
+          <p className="stage-empty-state" role="alert">{loadError || 'The selected setlist could not be found.'}</p>
+        ) : (
+          <div className="stage-player-layout">
+            <aside className="stage-category-nav">
+              <h2>Categories</h2>
+              {(selectedSetlist.categories || []).map((category) => {
+                const categorySongCount = entries.filter((entry) => entry.category.id === category.id).length;
+                const firstEntry = entries.find((entry) => entry.category.id === category.id);
+                return (
+                  <button
+                    aria-current={activeCategoryID === category.id ? 'true' : undefined}
+                    className={activeCategoryID === category.id ? 'stage-category-link stage-category-link--active' : 'stage-category-link'}
+                    key={category.id}
+                    onClick={() => {
+                      setActiveCategoryID(category.id);
+                      if (firstEntry) jumpToEntry(firstEntry);
+                    }}
+                    type="button"
+                  >
+                    <span>{category.name}</span><small>{categorySongCount}</small>
+                  </button>
+                );
+              })}
+            </aside>
+            <section aria-label="Setlist songs" className="stage-reader" onScroll={handleReaderScroll} ref={readerRef}>
+              {entries.length === 0 ? <p className="stage-empty-state">This setlist has no songs.</p> : entries.map((entry, index) => {
+                const transposeBy = transposeByEntry[entry.key] || 0;
+                const displayedKey = entry.song.defaultKey ? transposeChord(entry.song.defaultKey, transposeBy) : '—';
+                return (
+                  <article
+                    className={activeEntryKey === entry.key ? 'stage-song-card stage-song-card--active' : 'stage-song-card'}
+                    data-stage-category={entry.category.id}
+                    data-stage-entry={entry.key}
+                    key={entry.key}
+                    ref={(node) => {
+                      if (node) songNodes.current.set(entry.key, node);
+                      else songNodes.current.delete(entry.key);
+                    }}
+                  >
+                    <header className="stage-song-heading">
+                      <div>
+                        <span className="stage-song-category">{entry.category.name} · {index + 1} / {entries.length}</span>
+                        <h2>{entry.song.title}</h2>
+                        <p>{entry.song.artist || '—'}</p>
+                      </div>
+                      <div className="stage-song-tools">
+                        <span className="stage-song-scale">Scale <strong>{displayedKey}</strong></span>
+                        <div className="stage-transpose-control">
+                          <span>Transpose</span>
+                          <button aria-label={`Transpose ${entry.song.title} down one semitone`} onClick={() => setTransposeByEntry((current) => ({ ...current, [entry.key]: transposeBy - 1 }))} type="button">−</button>
+                          <output>{transposeBy > 0 ? `+${transposeBy}` : transposeBy}</output>
+                          <button aria-label={`Transpose ${entry.song.title} up one semitone`} onClick={() => setTransposeByEntry((current) => ({ ...current, [entry.key]: transposeBy + 1 }))} type="button">+</button>
+                        </div>
+                      </div>
+                    </header>
+                    {entry.song.content?.trim() ? (
+                      <div className="stage-song-lyrics" style={{ fontSize: `${fontScale}em` }}>
+                        <StageSongLyrics content={transposeContent(entry.song.content, transposeBy)} viewMode={viewMode} />
+                      </div>
+                    ) : <p className="stage-song-no-lyrics">No lyrics or chords added.</p>}
+                  </article>
+                );
+              })}
+            </section>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
 
 function PrintSongLyrics({ content }) {
@@ -1037,17 +1281,14 @@ function Workspace({ onViewStage }) {
 }
 
 export default function App() {
-  const [viewStage, setViewStage] = useState(false);
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/admin/login" element={<LoginPage onUnlock={() => window.location.assign('/admin/songs')} />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/admin/*" element={
-            viewStage
-              ? <ViewSongPage onExit={() => setViewStage(false)} />
-              : <Workspace onViewStage={() => setViewStage(true)} />
-          } />
+          <Route path="/admin/stage" element={<ViewSongPage />} />
+          <Route path="/admin/stage/:setlistId" element={<ViewSongPage />} />
+          <Route path="/admin/*" element={<Workspace onViewStage={() => window.location.assign('/admin/stage')} />} />
         </Route>
         <Route path="*" element={<Navigate to="/admin/login" replace />} />
       </Routes>
