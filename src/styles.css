@@ -223,7 +223,7 @@ h1 { color: #162033; font-size: clamp(30px, 4vw, 42px); letter-spacing: -.04em; 
 .key-filter > span { color: #a08e7a; flex: 0 0 auto; font-size: 10px; letter-spacing: .1em; margin-right: 5px; }
 .key-filter button { background: #201f21; border: 0; border-radius: 5px; color: #e5e1e4; flex: 0 0 auto; font: 700 12px monospace; padding: 8px 13px; }
 .key-filter button.selected { background: #f59e0b; color: #2a1700; }
-.library-table-wrap { background: #0e0e10; border-radius: 11px; overflow: hidden; }
+.library-table-wrap { background: #0e0e10; border-radius: 11px; overflow-x: auto; overflow-y: hidden; }
 .library-table { border-collapse: collapse; min-width: 980px; width: 100%; }
 .library-table th { background: #1b1b1d; color: #a08e7a; font-size: 10px; letter-spacing: .1em; padding: 15px 12px; text-align: left; text-transform: uppercase; }
 .library-table th:first-child, .library-table td:first-child { text-align: center; width: 48px; }
@@ -1482,7 +1482,7 @@ h1, h2, h3, th, td, .brand strong,
     grid-template-columns: 1fr;
   }
   .setlist-footer {
-    left: 68px;
+    left: 252px;
   }
 }
 .setlist-footer .amber-button { background: #f59e0b; color: #2a1700; font-weight: 700; }
@@ -1510,7 +1510,7 @@ h1, h2, h3, th, td, .brand strong,
 @media (max-width: 1100px) {
   .setlist-columns { grid-template-columns: 1fr; }
   .library-list { max-height: none; }
-  .setlist-footer { left: 68px; }
+  .setlist-footer { left: 252px; }
   .device-status { display: none; }
 }
 @media (max-width: 700px) {
@@ -1526,4 +1526,74 @@ h1, h2, h3, th, td, .brand strong,
   .setlist-footer { align-items: stretch; flex-direction: column; gap: 8px; left: 68px; padding: 9px 4%; }
   .setlist-footer > div:last-child { flex-direction: column; }
   .setlist-footer button { width: 100%; }
+}
+
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.main-content {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #b99a72 transparent;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+.stage-app-shell {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.stage-app-shell > .view-stage {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #b99a72 transparent;
+}
+.main-content::-webkit-scrollbar,
+.stage-app-shell > .view-stage::-webkit-scrollbar,
+.library-table-wrap::-webkit-scrollbar,
+.library-list::-webkit-scrollbar,
+.token-canvas::-webkit-scrollbar,
+.stage-screen::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.main-content::-webkit-scrollbar-thumb,
+.stage-app-shell > .view-stage::-webkit-scrollbar-thumb,
+.library-table-wrap::-webkit-scrollbar-thumb,
+.library-list::-webkit-scrollbar-thumb,
+.token-canvas::-webkit-scrollbar-thumb,
+.stage-screen::-webkit-scrollbar-thumb {
+  background: #b99a72;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+}
+.stage-footer { left: 252px; }
+
+@media (max-width: 700px) {
+  .stage-app-shell > .sidebar { width: 68px; }
+  .stage-app-shell > .view-stage {
+    margin-left: 68px;
+    width: calc(100% - 68px);
+  }
+  .stage-footer { left: 68px; }
 }
