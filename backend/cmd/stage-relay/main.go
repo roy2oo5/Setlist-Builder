@@ -125,11 +125,12 @@ func initialStageState(pack GigPack) stagews.StageState {
 		songID = pack.Songs[0].ID
 	}
 	return stagews.StageState{
-		Type:      "STATE_UPDATE",
-		SetlistID: pack.Setlist.ID,
-		SongID:    songID,
-		Transpose: 0,
-		UpdatedAt: time.Now().Unix(),
+		Type:        "STATE_UPDATE",
+		SetlistID:   pack.Setlist.ID,
+		SongID:      songID,
+		Transpose:   0,
+		ScrollSpeed: 1,
+		UpdatedAt:   time.Now().Unix(),
 	}
 }
 

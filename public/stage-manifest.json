@@ -1,0 +1,8 @@
+{
+  "name": "Setlist Builder Stage View",
+  "short_name": "Stage View",
+  "start_url": "/stage",
+  "display": "standalone",
+  "background_color": "#f7f4ed",
+  "theme_color": "#f7f4ed"
+}

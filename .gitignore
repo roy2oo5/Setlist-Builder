@@ -1,5 +1,7 @@
 backend/.env
 backend/bin/
 backend/tmp/
+backend/cmd/stage-relay/web/dist/*
+!backend/cmd/stage-relay/web/dist/index.html
 dist/
 node_modules/

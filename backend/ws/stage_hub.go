@@ -20,18 +20,26 @@ const (
 )
 
 type StageState struct {
-	Type      string `json:"type"`
-	SetlistID string `json:"setlistId"`
-	SongID    string `json:"songId"`
-	Transpose int    `json:"transpose"`
-	UpdatedAt int64  `json:"updatedAt"`
+	Type         string  `json:"type"`
+	SetlistID    string  `json:"setlistId"`
+	SongID       string  `json:"songId"`
+	Transpose    int     `json:"transpose"`
+	AutoScroll   bool    `json:"autoScroll"`
+	ScrollSpeed  float64 `json:"scrollSpeed"`
+	ScrollLine   int     `json:"scrollLine"`
+	ScrollOffset float64 `json:"scrollOffset"`
+	UpdatedAt    int64   `json:"updatedAt"`
 }
 
 type command struct {
-	Type      string `json:"type"`
-	SetlistID string `json:"setlistId"`
-	SongID    string `json:"songId"`
-	Transpose *int   `json:"transpose"`
+	Type         string   `json:"type"`
+	SetlistID    string   `json:"setlistId"`
+	SongID       string   `json:"songId"`
+	Transpose    *int     `json:"transpose"`
+	AutoScroll   *bool    `json:"autoScroll"`
+	ScrollSpeed  *float64 `json:"scrollSpeed"`
+	ScrollLine   *int     `json:"scrollLine"`
+	ScrollOffset *float64 `json:"scrollOffset"`
 }
 
 type stageClient struct {
@@ -50,8 +58,9 @@ type StageHub struct {
 func NewStageHub() *StageHub {
 	return &StageHub{
 		state: StageState{
-			Type:      "STATE_UPDATE",
-			UpdatedAt: time.Now().Unix(),
+			Type:        "STATE_UPDATE",
+			ScrollSpeed: 1,
+			UpdatedAt:   time.Now().Unix(),
 		},
 		clients: make(map[*stageClient]struct{}),
 		upgrader: websocket.Upgrader{
@@ -88,6 +97,12 @@ func (h *StageHub) Snapshot() StageState {
 
 func (h *StageHub) SetState(state StageState) {
 	state.Type = "STATE_UPDATE"
+	if state.ScrollSpeed < 0.5 {
+		state.ScrollSpeed = 1
+	}
+	if state.ScrollOffset < 0 || state.ScrollOffset > 1 {
+		state.ScrollOffset = 0
+	}
 	state.UpdatedAt = time.Now().Unix()
 	h.mu.Lock()
 	h.state = state
@@ -208,6 +223,8 @@ func (h *StageHub) applyCommand(incoming command) {
 		}
 		h.state.SetlistID = incoming.SetlistID
 		h.state.SongID = incoming.SongID
+		h.state.ScrollLine = 0
+		h.state.ScrollOffset = 0
 		changed = true
 	case "TRANSPOSE":
 		if incoming.Transpose == nil {
@@ -215,6 +232,23 @@ func (h *StageHub) applyCommand(incoming command) {
 			return
 		}
 		h.state.Transpose = *incoming.Transpose
+		changed = true
+	case "AUTO_SCROLL":
+		if incoming.AutoScroll == nil || incoming.ScrollSpeed == nil || *incoming.ScrollSpeed < 0.5 || *incoming.ScrollSpeed > 3 {
+			h.mu.Unlock()
+			return
+		}
+		h.state.AutoScroll = *incoming.AutoScroll
+		h.state.ScrollSpeed = *incoming.ScrollSpeed
+		changed = true
+	case "SCROLL_POSITION":
+		if incoming.ScrollLine == nil || incoming.ScrollOffset == nil ||
+			*incoming.ScrollLine < 0 || *incoming.ScrollOffset < 0 || *incoming.ScrollOffset > 1 {
+			h.mu.Unlock()
+			return
+		}
+		h.state.ScrollLine = *incoming.ScrollLine
+		h.state.ScrollOffset = *incoming.ScrollOffset
 		changed = true
 	default:
 		h.mu.Unlock()

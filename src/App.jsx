@@ -3,6 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { adminRequest, setAdminToken } from './api/adminClient';
 import ProtectedRoute from './components/ProtectedRoute';
 import { getDiatonicChords, parseChordProLine, transposeChord, transposeContent } from './utils/chordPro';
+import { createGigPack, downloadGigPack } from './utils/gigPack';
+import StageView from './pages/StageView';
 
 const pages = [
   { id: 'setlist-builder', label: 'Setlist Builder', icon: '☷' },
@@ -1317,6 +1319,18 @@ function ViewSetlistPage() {
     window.print();
   }
 
+  function exportGigPack() {
+    if (!selected) return;
+    let pack;
+    try {
+      pack = createGigPack(selected, songs);
+    } catch (error) {
+      window.alert(error.message);
+      return;
+    }
+    downloadGigPack(pack);
+  }
+
   return (
     <div className="view-setlist-page">
       <header className="view-setlist-heading">
@@ -1358,6 +1372,7 @@ function ViewSetlistPage() {
                 <h2>{selected.gigName || 'Untitled setlist'}</h2>
                 <div className="saved-setlist-detail__actions">
                   <button className="view-setlist-export" onClick={exportSetlistPDF} type="button">Export PDF</button>
+                  <button className="view-setlist-export" onClick={exportGigPack} type="button">Export Gig Pack (.json)</button>
                   <button
                     className="view-setlist-edit"
                     onClick={() => window.location.assign(`/admin/setlists?edit=${encodeURIComponent(selected.id)}`)}
@@ -1679,6 +1694,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/stage" element={<StageView />} />
         <Route path="/admin/login" element={<LoginPage onUnlock={() => window.location.assign('/admin/songs')} />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/admin/stage" element={<ViewSongPage />} />
