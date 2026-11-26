@@ -16,6 +16,7 @@ import (
 	"os/signal"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -29,13 +30,23 @@ var embeddedFrontend embed.FS
 const maxGigPackBytes = 32 << 20
 
 func main() {
-	executable, err := os.Executable()
-	if err != nil {
-		log.Fatalf("locate stage relay binary: %v", err)
-	}
 	gigPackPath := os.Getenv("STAGE_GIG_PACK_PATH")
 	if gigPackPath == "" {
-		gigPackPath = filepath.Join(filepath.Dir(executable), "gig-pack.json")
+		gigPackDirectory := ""
+		if runtime.GOOS == "android" {
+			workingDirectory, err := os.Getwd()
+			if err != nil {
+				log.Fatalf("locate current directory for gig pack: %v", err)
+			}
+			gigPackDirectory = workingDirectory
+		} else {
+			executable, err := os.Executable()
+			if err != nil {
+				log.Fatalf("locate stage relay binary: %v", err)
+			}
+			gigPackDirectory = filepath.Dir(executable)
+		}
+		gigPackPath = filepath.Join(gigPackDirectory, "gig-pack.json")
 	}
 	packStore, err := newGigPackStore(gigPackPath)
 	if err != nil {

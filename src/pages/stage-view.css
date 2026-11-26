@@ -277,8 +277,7 @@
 }
 .offline-stage-navigation button,
 .offline-stage-adjust-control button,
-.offline-stage-free-browse,
-.offline-stage-snap {
+.offline-stage-free-browse {
   background: var(--stage-surface-alt);
   border: 1px solid var(--stage-control-border);
   border-radius: 8px;
@@ -292,7 +291,6 @@
   grid-template-columns: 1fr 1fr;
 }
 .offline-stage-navigation button:last-child,
-.offline-stage-snap,
 .offline-stage-drawer-primary {
   background: var(--stage-amber);
   border-color: var(--stage-amber);
@@ -373,9 +371,6 @@
 }
 .offline-stage-free-browse.is-active {
   color: var(--stage-amber);
-}
-.offline-stage-snap {
-  min-height: 34px;
 }
 .offline-stage-empty {
   margin: auto;

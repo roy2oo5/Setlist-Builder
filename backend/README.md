@@ -89,21 +89,36 @@ React app, embed it in the relay, and cross-compile for Android/Termux with:
 make build-android
 ```
 
-The binary is written to `backend/bin/stage-relay-arm64`. Copy it to the
-Android device that is hosting the phone hotspot, then run it from Termux:
+The binary is written to `backend/bin/stage-relay-arm64`. Before the gig,
+export the setlist from the Admin Console as a gig-pack JSON file and copy both
+that file and the binary to the Android phone that will host the hotspot.
+Install Termux, open it, and copy the files from Downloads into Termux's
+private home directory (Android shared storage may not allow executing a
+binary directly):
 
 ```bash
+termux-setup-storage
+mkdir -p ~/stage-relay
+cp ~/storage/downloads/stage-relay-arm64 ~/stage-relay/
+cp ~/storage/downloads/your-gig-pack.json ~/stage-relay/gig-pack.json
+cd ~/stage-relay
 chmod +x stage-relay-arm64
 ./stage-relay-arm64
 ```
 
-The relay listens on `0.0.0.0:8080` and stores `gig-pack.json` beside the
-binary. Connect devices to the same hotspot and open
-`http://<relay-hotspot-ip>:8080/stage`. In Stage View, import a gig-pack JSON
-exported from the Admin Console or use **Sync Gig Now**. The client caches the
-setlist and songs on each device for offline use. The relay exposes
-`GET /api/stage/gig-pack`, `POST /api/stage/gig-pack`, and the `/ws` live-sync
-endpoint.
+Start the Android hotspot, then run the relay in Termux. It listens on
+`0.0.0.0:8080` and stores `gig-pack.json` beside the binary. Connect every
+phone and laptop to that hotspot and open
+`http://<android-hotspot-ip>:8080/stage`; find the hotspot IP in the connected
+device's Wi-Fi network details (it is often `192.168.43.1`, but can vary).
+Keep Termux running and exempt it from Android battery optimization during the
+gig. No laptop or internet connection is needed at performance time; the
+Android phone hosts the relay, and every bandmate's device is a Stage client.
+Devices cache the setlist and songs locally. The relay exposes
+`GET /api/stage/gig-pack`, `POST /api/stage/gig-pack`, and `/ws` live sync.
+
+iOS Safari can open the local Stage URL, but iOS may restrict PWA installation,
+offline app-shell reloads, and wake-lock features over plain HTTP.
 
 For local development, run `npm run build:stage-relay` before building or
 running `go run ./cmd/stage-relay` from `backend/`; this places the Vite

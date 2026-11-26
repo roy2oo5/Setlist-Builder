@@ -270,12 +270,16 @@ export default function StageView() {
   }, [settings.theme]);
 
   useEffect(() => {
-    if (!settings.autoScroll || !scrollContainerRef.current) return undefined;
+    if (
+      !settings.autoScroll ||
+      !scrollContainerRef.current ||
+      (settings.role === 'follower' && settings.freeBrowse)
+    ) return undefined;
     const timer = window.setInterval(() => {
       scrollContainerRef.current?.scrollBy({ top: settings.scrollSpeed, behavior: 'instant' });
     }, 35);
     return () => window.clearInterval(timer);
-  }, [settings.autoScroll, settings.scrollSpeed]);
+  }, [settings.autoScroll, settings.freeBrowse, settings.role, settings.scrollSpeed]);
 
   useEffect(() => {
     const reader = scrollContainerRef.current;
@@ -285,7 +289,11 @@ export default function StageView() {
   }, [activeSongId]);
 
   useEffect(() => {
-    if (!remoteScroll || remoteScroll.songId !== activeSongId) return;
+    if (
+      !remoteScroll ||
+      remoteScroll.songId !== activeSongId ||
+      (settings.role === 'follower' && settings.freeBrowse)
+    ) return;
     const reader = scrollContainerRef.current;
     const lines = reader?.querySelectorAll('.offline-stage-lyrics > *');
     if (!reader || !lines?.length) return;
@@ -297,7 +305,7 @@ export default function StageView() {
     const target = reader.scrollTop + lineRect.top - readerTop + lineRect.height * remoteScroll.offset;
     suppressScrollUntilRef.current = performance.now() + 250;
     reader.scrollTop = Math.max(0, target);
-  }, [remoteScroll, activeSongId]);
+  }, [remoteScroll, activeSongId, settings.freeBrowse, settings.role]);
 
   useEffect(() => {
     const reader = scrollContainerRef.current;
@@ -477,7 +485,7 @@ export default function StageView() {
     }
   }
 
-  function snapToVocalist() {
+  function returnToLeaderSync() {
     updateSetting('freeBrowse', false);
     if (!leaderState?.songId) return;
     const leaderEntry = entries.find((entry) => entry.song.id === leaderState.songId);
@@ -566,12 +574,11 @@ export default function StageView() {
         <div className="offline-stage-follow-bar">
           <button
             className={settings.freeBrowse ? 'offline-stage-free-browse is-active' : 'offline-stage-free-browse'}
-            onClick={() => settings.freeBrowse ? snapToVocalist() : updateSetting('freeBrowse', true)}
+            onClick={() => settings.freeBrowse ? returnToLeaderSync() : updateSetting('freeBrowse', true)}
             type="button"
           >
             {settings.freeBrowse ? 'Free Browse: On' : 'Free Browse'}
           </button>
-          {settings.freeBrowse && <button className="offline-stage-snap" onClick={snapToVocalist} type="button">Snap to Vocalist</button>}
         </div>
       )}
 
